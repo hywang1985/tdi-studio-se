@@ -592,7 +592,7 @@ public class ConfigureConnParamDialog extends Dialog {
     protected void okPressed() {
         for (Text text : allParamText) {
             EConnectionParameterName name = (EConnectionParameterName) text.getData();
-            String value = ((Text) text.getData(TEXT_CONTROL)).getText().substring(CONTEXT_WITH.length());
+            String value = ((Text) text.getData(TEXT_CONTROL)).getText();
             switch (name) {
             case SID:
                 parameters.setDbName(value);
