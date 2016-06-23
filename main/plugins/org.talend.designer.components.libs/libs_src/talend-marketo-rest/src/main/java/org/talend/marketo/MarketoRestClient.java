@@ -81,14 +81,13 @@ public class MarketoRestClient {
             throws Exception {
         if (authInfo != null) {
             webClient.resetQuery();
-            webClient.replacePath("/identity/oauth/token")
-                    .query("grant_type", "client_credentials")
-                    .query("client_id", authInfo.getClientAccessID())
-                    .query("client_secret", authInfo.getSecretKey());
+            webClient.replacePath("/identity/oauth/token");
+            webClient.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE);
 
-            Response response = webClient.get();
+            Response response = webClient.post("grant_type=client_credentials&client_secret=" + authInfo.getSecretKey()
+                    + "&client_id=" + authInfo.getClientAccessID());
             if (response.getStatus() == 200 && response.hasEntity()) {
-
+                webClient.type(MediaType.APPLICATION_JSON_TYPE);
                 InputStream inStream = response.readEntity(InputStream.class);
                 Reader reader = new InputStreamReader(inStream);
                 Gson gson = new Gson();
