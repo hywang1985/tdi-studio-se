@@ -223,7 +223,6 @@ if (sftp) {  // *** sftp *** //
 	      }
 	      <%=outputConnName %>.md5 =String.format("%032x", new java.math.BigInteger(1, dgs_<%=cid %>.digest()));
 	      <%if(isLog4jEnabled){%>
-				log4jSb_<%=cid%>.append();
 				log.info("<%= cid %> - md5 message is : '"+ <%=outputConnName %>.md5 + "'."); 
 		  <%}%>
 	      is_<%=cid %>.close();

@@ -31,9 +31,7 @@ import org.talend.commons.exception.BusinessException;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.Connector;
-import org.talend.components.api.component.OutputComponentDefinition;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.api.component.Trigger;
 import org.talend.components.api.component.VirtualComponentDefinition;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
@@ -49,6 +47,7 @@ import org.talend.core.model.components.EComponentType;
 import org.talend.core.model.components.IMultipleComponentItem;
 import org.talend.core.model.components.IMultipleComponentManager;
 import org.talend.core.model.general.ModuleNeeded;
+import org.talend.core.model.metadata.types.JavaTypesManager;
 import org.talend.core.model.param.ERepositoryCategoryType;
 import org.talend.core.model.process.EComponentCategory;
 import org.talend.core.model.process.EConnectionType;
@@ -61,16 +60,17 @@ import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.temp.ECodePart;
 import org.talend.core.model.utils.ContextParameterUtils;
 import org.talend.core.prefs.ITalendCorePrefConstants;
+import org.talend.core.runtime.util.ComponentReturnVariableUtils;
 import org.talend.core.runtime.util.GenericTypeUtils;
 import org.talend.core.ui.component.ComponentsFactoryProvider;
 import org.talend.core.ui.services.IComponentsLocalProviderService;
 import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.SchemaProperty;
+import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.designer.core.DesignerPlugin;
 import org.talend.designer.core.generic.constants.IGenericConstants;
 import org.talend.designer.core.generic.context.ComponentContextPropertyValueEvaluator;
@@ -103,6 +103,8 @@ public class Component extends AbstractBasicComponent {
     private ComponentsProvider provider;
 
     private Map<String, String> translatedMap = new HashMap<>();
+
+    private static String ERROR_MESSAGE = "ERROR_MESSAGE";
 
     public Component(ComponentDefinition componentDefinition) throws BusinessException {
         this.componentDefinition = componentDefinition;
@@ -176,24 +178,30 @@ public class Component extends AbstractBasicComponent {
         if (!(componentProperties instanceof ComponentPropertiesImpl)) {
             return listReturn;
         }
-        ComponentPropertiesImpl props = (ComponentPropertiesImpl) componentProperties;
-        Property returns = props.returns;
-        if (returns != null) {
-            NodeReturn nodeRet = null;
-            for (Object childObj : returns.getChildren()) {
-                Property child = (Property) childObj;
-                nodeRet = new NodeReturn();
-                nodeRet.setType(ComponentsUtils.getTalendTypeFromProperty(child).getId());
-                nodeRet.setDisplayName(child.getDisplayName());
-                nodeRet.setName(child.getName());
-                Object object = child.getTaggedValue(IGenericConstants.AVAILABILITY);
-                if (object != null) {
-                    nodeRet.setAvailability(object.toString());
-                } else {
-                    nodeRet.setAvailability("AFTER"); //$NON-NLS-1$
-                }
-                listReturn.add(nodeRet);
+        NodeReturn nodeRet = new NodeReturn();
+        nodeRet.setType(JavaTypesManager.STRING.getLabel());
+        nodeRet.setDisplayName(ComponentReturnVariableUtils.getTranslationForVariable(ComponentDefinition.RETURN_ERROR_MESSAGE,
+                ComponentDefinition.RETURN_ERROR_MESSAGE));
+        nodeRet.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(ComponentDefinition.RETURN_ERROR_MESSAGE));
+        nodeRet.setAvailability("AFTER"); //$NON-NLS-1$
+        listReturn.add(nodeRet);
+
+        for (Property<?> child : componentDefinition.getReturnProperties()) {
+            nodeRet = new NodeReturn();
+            nodeRet.setType(ComponentsUtils.getTalendTypeFromProperty(child).getId());
+            nodeRet.setDisplayName(
+                    ComponentReturnVariableUtils.getTranslationForVariable(child.getName(), child.getDisplayName()));
+            nodeRet.setName(ComponentReturnVariableUtils.getStudioNameFromVariable(child.getName()));
+            if (nodeRet.getName().equals(ERROR_MESSAGE)) {
+                continue;
             }
+            Object object = child.getTaggedValue(IGenericConstants.AVAILABILITY);
+            if (object != null) {
+                nodeRet.setAvailability(object.toString());
+            } else {
+                nodeRet.setAvailability("AFTER"); //$NON-NLS-1$
+            }
+            listReturn.add(nodeRet);
         }
         return listReturn;
     }
@@ -644,7 +652,7 @@ public class Component extends AbstractBasicComponent {
                 listParam.add(param);
             }
         }
-        
+
         // These parameters is only work when TIS is loaded
         // GLiu Added for Task http://jira.talendforge.org/browse/TESB-4279
         if (PluginChecker.isTeamEdition() && !ComponentCategory.CATEGORY_4_CAMEL.getName().equals(getPaletteType())) {
@@ -1033,7 +1041,8 @@ public class Component extends AbstractBasicComponent {
                 ModuleNeeded moduleNeeded = new ModuleNeeded(getName(), "", true, mvnUri);
                 componentImportNeedsList.add(moduleNeeded);
             }
-            ModuleNeeded moduleNeeded = new ModuleNeeded(getName(), "", true, "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0");
+            ModuleNeeded moduleNeeded = new ModuleNeeded(getName(), "", true,
+                    "mvn:org.talend.libraries/slf4j-log4j12-1.7.2/6.0.0");
             componentImportNeedsList.add(moduleNeeded);
             return componentImportNeedsList;
         }
@@ -1077,6 +1086,7 @@ public class Component extends AbstractBasicComponent {
         theCodePartList.add(ECodePart.BEGIN);
         theCodePartList.add(ECodePart.MAIN);
         theCodePartList.add(ECodePart.END);
+        theCodePartList.add(ECodePart.FINALLY);
         return theCodePartList;
     }
 
@@ -1218,7 +1228,7 @@ public class Component extends AbstractBasicComponent {
             return ElementParameterParser.getEncryptedValue(value);
         }
         if (Boolean.valueOf(String.valueOf(property.getTaggedValue(IGenericConstants.ADD_QUOTES)))) {
-            return "\"" + value + "\"";//$NON-NLS-1$ //$NON-NLS-2$ 
+            return "\"" + value + "\"";//$NON-NLS-1$ //$NON-NLS-2$
         }
         if (GenericTypeUtils.isEnumType(property)) {
             if (ContextParameterUtils.isContainContextParam(value) || value.indexOf("globalMap.get") > -1) {
@@ -1283,14 +1293,15 @@ public class Component extends AbstractBasicComponent {
     @Override
     public void initNodePropertiesFromSerialized(INode node, String serialized) {
         if (node != null) {
-            node.setComponentProperties(PropertiesImpl.fromSerialized(serialized, ComponentProperties.class,
-                    new Properties.PostSerializationSetup<ComponentProperties>() {
+            node.setComponentProperties(
+                    Properties.Helper.fromSerializedPersistent(serialized, ComponentProperties.class, new PostDeserializeSetup() {
 
                         @Override
-                        public void setup(ComponentProperties properties) {
-                            properties.setValueEvaluator(new ComponentContextPropertyValueEvaluator(node));
+                        public void setup(Object properties) {
+                            ((Properties) properties).setValueEvaluator(new ComponentContextPropertyValueEvaluator(node));
                         }
-                    }).properties);
+
+                    }).object);
         }
     }
 
@@ -1311,8 +1322,7 @@ public class Component extends AbstractBasicComponent {
         if (iNode != null) {
             ComponentProperties iNodeComponentProperties = iNode.getComponentProperties();
             if (iNodeComponentProperties != null && param instanceof GenericElementParameter) {
-                Properties paramProperties = ComponentsUtils.getCurrentProperties(
-                        iNodeComponentProperties, param.getName());
+                Properties paramProperties = ComponentsUtils.getCurrentProperties(iNodeComponentProperties, param.getName());
                 if (paramProperties != null) {
                     // update repository value
                     Property property = iNodeComponentProperties.getValuedProperty(param.getName());
@@ -1341,8 +1351,7 @@ public class Component extends AbstractBasicComponent {
         if (param instanceof GenericElementParameter) {
             ComponentProperties componentProperties = ((Node) ((GenericElementParameter) param).getElement())
                     .getComponentProperties();
-            Properties currentProperties = ComponentsUtils.getCurrentProperties(componentProperties,
-                    param.getName());
+            Properties currentProperties = ComponentsUtils.getCurrentProperties(componentProperties, param.getName());
             if (currentProperties == null) {
                 return false;
             }

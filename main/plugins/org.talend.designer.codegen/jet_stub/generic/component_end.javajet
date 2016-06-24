@@ -31,15 +31,50 @@ if ((metadatas != null) && (metadatas.size() > 0)) {
 if (metadata == null) {
     return stringBuffer.toString();
 }
+%>
 
+resourceMap.put("finish_<%=cid%>", Boolean.TRUE);
+
+<%
 if(def instanceof org.talend.components.api.component.InputComponentDefinition){
-    %>
+%>
     } // while
     reader_<%=cid%>.close();
-    <%
+    final java.util.Map<String, Object> resultMap_<%=cid%> = reader_<%=cid%>.getReturnValues();
+<%
 }else if(def instanceof org.talend.components.api.component.OutputComponentDefinition){
-    %>
-    writer_<%=cid%>.close();
-    <%
+%>
+    org.talend.components.api.component.runtime.Result resultObject_<%=cid%> = (org.talend.components.api.component.runtime.Result)writer_<%=cid%>.close();
+    final java.util.Map<String, Object> resultMap_<%=cid%> = writer_<%=cid%>.getWriteOperation().finalize(java.util.Arrays.<org.talend.components.api.component.runtime.Result>asList(resultObject_<%=cid%>), container_<%=cid%>);
+<%
 }
 %>
+if(resultMap_<%=cid%>!=null) {
+	for(java.util.Map.Entry<String,Object> entry_<%=cid%> : resultMap_<%=cid%>.entrySet()) {
+		switch(entry_<%=cid%>.getKey()) {
+		case org.talend.components.api.component.ComponentDefinition.RETURN_ERROR_MESSAGE :
+			container_<%=cid%>.setComponentData("<%=cid%>", "ERROR_MESSAGE", entry_<%=cid%>.getValue());
+			break;
+		case org.talend.components.api.component.ComponentDefinition.RETURN_TOTAL_RECORD_COUNT :
+			container_<%=cid%>.setComponentData("<%=cid%>", "NB_LINE", entry_<%=cid%>.getValue());
+			break;
+		case org.talend.components.api.component.ComponentDefinition.RETURN_SUCCESS_RECORD_COUNT :
+			container_<%=cid%>.setComponentData("<%=cid%>", "NB_SUCCESS", entry_<%=cid%>.getValue());
+			break;
+		case org.talend.components.api.component.ComponentDefinition.RETURN_REJECT_RECORD_COUNT :
+			container_<%=cid%>.setComponentData("<%=cid%>", "NB_REJECT", entry_<%=cid%>.getValue());
+			break;
+		default :
+            StringBuilder studio_key_<%=cid%> = new StringBuilder();
+            for (int i_<%=cid%> = 0; i_<%=cid%> < entry_<%=cid%>.getKey().length(); i_<%=cid%>++) {
+                char ch_<%=cid%> = entry_<%=cid%>.getKey().charAt(i_<%=cid%>);
+                if(Character.isUpperCase(ch_<%=cid%>) && i_<%=cid%>> 0) {
+                	studio_key_<%=cid%>.append('_');
+                }
+                studio_key_<%=cid%>.append(ch_<%=cid%>);
+            }
+			container_<%=cid%>.setComponentData("<%=cid%>", studio_key_<%=cid%>.toString().toUpperCase(java.util.Locale.ENGLISH), entry_<%=cid%>.getValue());
+			break;
+		}
+	}
+}

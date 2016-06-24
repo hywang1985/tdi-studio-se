@@ -28,9 +28,11 @@ import org.talend.commons.ui.swt.formtools.UtilsButton;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.core.model.properties.ConnectionItem;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.Properties.Deserialized;
 import org.talend.daikon.properties.PropertiesImpl;
+import org.talend.daikon.serialize.PostDeserializeSetup;
+import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.designer.core.generic.constants.IContextEventProperties;
+import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.metadata.managment.ui.wizard.context.MetadataContextPropertyValueEvaluator;
 import org.talend.repository.generic.handler.IContextHandler;
 import org.talend.repository.generic.i18n.Messages;
@@ -156,17 +158,7 @@ public class ContextComposite extends Composite {
             GenericConnection connection = (GenericConnection) connectionItem.getConnection();
             String compPropertiesStr = connection.getCompProperties();
             if (compPropertiesStr != null) {
-                Deserialized<ComponentProperties> fromSerialized = PropertiesImpl.fromSerialized(compPropertiesStr,
-                        ComponentProperties.class, new Properties.PostSerializationSetup<ComponentProperties>() {
-
-                            @Override
-                            public void setup(ComponentProperties properties) {
-                                properties.setValueEvaluator(new MetadataContextPropertyValueEvaluator(connection));
-                            }
-                        });
-                if (fromSerialized != null) {
-                    return fromSerialized.properties;
-                }
+                return ComponentsUtils.getComponentPropertiesFromSerialized(compPropertiesStr, connection);
             }
         }
         return null;

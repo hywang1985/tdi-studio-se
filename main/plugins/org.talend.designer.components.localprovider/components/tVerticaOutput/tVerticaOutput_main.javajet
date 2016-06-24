@@ -1291,17 +1291,17 @@ skeleton="../templates/db_output_bulk.skeleton"
                         } else {
                         %>
                         java.io.ByteArrayInputStream bais_<%=cid%> = new ByteArrayInputStream(stmtBuilder_<%=cid%>.toString().getBytes());
-                        <%if("VERTICA_7_0_X".equals(db_version) || "VERTICA_6_1_X".equals(db_version) || "VERTICA_6_0".equals(db_version) || "VERTICA_5_1".equals(db_version)){%>
-                            <%dbLog.batch().executeTry(dbLog.str(dataAction));%>
+                        <%if("vertica_3.0_jdk_5.jar".equals(db_version) || "vertica_3.5_jdk_5.jar".equals(db_version) || "vertica_4.0_jdk_5.jar".equals(db_version) || "vertica_4.1.7_jdk_5.jar".equals(db_version) || "vertica_4.1.14_jdk_5.jar".equals(db_version)){%>
+                             <%dbLog.batch().executeTry(dbLog.str(dataAction));%>
+                            ((com.vertica.PGStatement)stmt_<%=cid%>).executeCopyIn(template_<%=cid%>, bais_<%=cid%>);
+                            <%dbLog.batch().executeDone(dbLog.str(dataAction));%>
+                        <%}else{%>
+                           <%dbLog.batch().executeTry(dbLog.str(dataAction));%>
                             com.vertica.jdbc.VerticaCopyStream vcs_<%=cid%> = new com.vertica.jdbc.VerticaCopyStream((com.vertica.jdbc.VerticaConnection)conn_<%=cid%>,template_<%=cid%>);
                             vcs_<%=cid%>.start();
                             vcs_<%=cid%>.addStream(bais_<%=cid%>);
                             vcs_<%=cid%>.execute();
                             vcs_<%=cid%>.finish();
-                            <%dbLog.batch().executeDone(dbLog.str(dataAction));%>
-                        <%}else{%>
-                            <%dbLog.batch().executeTry(dbLog.str(dataAction));%>
-                            ((com.vertica.PGStatement)stmt_<%=cid%>).executeCopyIn(template_<%=cid%>, bais_<%=cid%>);
                             <%dbLog.batch().executeDone(dbLog.str(dataAction));%>
                         <%}%>
                         stmtBuilder_<%=cid%> = null;
@@ -1327,13 +1327,13 @@ skeleton="../templates/db_output_bulk.skeleton"
                             deletedCount_<%=cid%> += pstmt_<%=cid %>. getUpdateCount();
                         <%
                         }else if (("COPY").equals(dataAction)) {
-                            if("VERTICA_7_0_X".equals(db_version) || "VERTICA_6_1_X".equals(db_version) || "VERTICA_6_0".equals(db_version) || "VERTICA_5_1".equals(db_version)){
-                        %>
-                                copiedCount_<%=cid%> += vcs_<%=cid%>.getRowCount();
-                        <%
-                            }else{
+                            if("vertica_3.0_jdk_5.jar".equals(db_version) || "vertica_3.5_jdk_5.jar".equals(db_version) || "vertica_4.0_jdk_5.jar".equals(db_version) || "vertica_4.1.7_jdk_5.jar".equals(db_version) || "vertica_4.1.14_jdk_5.jar".equals(db_version)){
                         %>
                                 copiedCount_<%=cid%> += stmt_<%=cid %>.getUpdateCount();
+                        <%
+                            }else{
+                        %> 
+                                copiedCount_<%=cid%> += vcs_<%=cid%>.getRowCount();
                         <%
                             }
                         }
@@ -1355,7 +1355,7 @@ skeleton="../templates/db_output_bulk.skeleton"
             <%
         }
         ////////////commit every////////////
-        if(!useExistingConnection && (!("VERTICA_7_0_X".equals(db_version) || "VERTICA_6_1_X".equals(db_version) || "VERTICA_6_0".equals(db_version) || "VERTICA_5_1".equals(db_version)) || !"COPY".equals(dataAction))) {
+        if(!useExistingConnection && ("vertica_3.0_jdk_5.jar".equals(db_version) || "vertica_3.5_jdk_5.jar".equals(db_version) || "vertica_4.0_jdk_5.jar".equals(db_version) || "vertica_4.1.7_jdk_5.jar".equals(db_version) || "vertica_4.1.14_jdk_5.jar".equals(db_version) || !"COPY".equals(dataAction))) {
             if(manualCommit) {
                 %>
                 commitCounter_<%=cid%>++;

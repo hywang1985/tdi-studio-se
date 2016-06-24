@@ -42,6 +42,7 @@ import org.talend.core.repository.model.repositoryObject.MetadataColumnRepositor
 import org.talend.core.repository.model.repositoryObject.MetadataTableRepositoryObject;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.core.runtime.util.GenericTypeUtils;
+import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.daikon.properties.property.Property;
 import org.talend.designer.core.generic.constants.IGenericConstants;
 import org.talend.designer.core.generic.model.Component;
@@ -51,6 +52,7 @@ import org.talend.designer.core.generic.utils.SchemaUtils;
 import org.talend.repository.generic.model.genericMetadata.GenericConnection;
 import org.talend.repository.generic.model.genericMetadata.GenericConnectionItem;
 import org.talend.repository.model.RepositoryNode;
+
 import orgomg.cwm.objectmodel.core.ModelElement;
 
 /**
@@ -85,11 +87,15 @@ public class GenericDragAndDropHandler extends AbstractDragAndDropServiceHandler
             String value, IMetadataTable table) {
         if (componentProperties != null && value != null) {
             for (ComponentProperties compPro : componentProperties) {
-                Property property = compPro.getValuedProperty(value);
+                Property<?> property = compPro.getValuedProperty(value);
                 if (property != null) {
                     Object paramValue = property.getStoredValue();
-                    if (GenericTypeUtils.isStringType(property) && paramValue != null) {
-                        return getRepositoryValueOfStringType(connection, paramValue.toString());
+                    if (GenericTypeUtils.isStringType(property)) {
+                        if (paramValue != null) {
+                            return getRepositoryValueOfStringType(connection, paramValue.toString());
+                        } else {
+                            return TalendQuoteUtils.addQuotes(""); //$NON-NLS-1$
+                        }
                     } else if (GenericTypeUtils.isEnumType(property) && paramValue != null) {
                         return paramValue.toString();
                     }

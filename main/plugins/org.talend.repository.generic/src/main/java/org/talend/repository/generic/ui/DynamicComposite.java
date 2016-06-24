@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.talend.commons.ui.gmf.util.DisplayUtils;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
 import org.talend.core.model.metadata.builder.connection.Connection;
@@ -148,6 +149,7 @@ public class DynamicComposite extends MultipleThreadDynamicComposite implements 
                 genericElementParameter.setComponentService(componentService);
                 genericElementParameter.setDrivedByForm(drivedByForm);
                 genericElementParameter.callBeforePresent();
+                genericElementParameter.removePropertyChangeListener(this);
                 genericElementParameter.addPropertyChangeListener(this);
                 if (EParameterFieldType.SCHEMA_REFERENCE.equals(genericElementParameter.getFieldType())) {
                     if (genericElementParameter.getChildParameters().size() == 0) {
@@ -279,18 +281,37 @@ public class DynamicComposite extends MultipleThreadDynamicComposite implements 
                 return;
             }
         }
+        String message = validationMessage;
         switch (validationStatus) {
         case WARNING:
             checker.updateStatus(IStatus.WARNING, null);
-            MessageDialog.openWarning(getShell(), this.elem.getElementName(), validationMessage);
+            DisplayUtils.getDisplay().syncExec(new Runnable() {
+                
+                @Override
+                public void run() {
+                    MessageDialog.openWarning(getShell(), elem.getElementName(), message);                    
+                }
+            });
             break;
         case ERROR:
             checker.updateStatus(IStatus.ERROR, null);
-            MessageDialog.openError(getShell(), this.elem.getElementName(), validationMessage);
+            DisplayUtils.getDisplay().syncExec(new Runnable() {
+                
+                @Override
+                public void run() {
+                    MessageDialog.openError(getShell(), elem.getElementName(), message);
+                }
+            });
             break;
         default:
             checker.updateStatus(IStatus.OK, null);
-            MessageDialog.openInformation(getShell(), this.elem.getElementName(), validationMessage);
+            DisplayUtils.getDisplay().syncExec(new Runnable() {
+                
+                @Override
+                public void run() {
+                    MessageDialog.openInformation(getShell(), elem.getElementName(), message);
+                }
+            });
             break;
         }
     }

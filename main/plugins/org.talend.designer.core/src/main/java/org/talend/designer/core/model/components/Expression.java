@@ -36,6 +36,8 @@ import org.talend.core.model.process.IElement;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
 import org.talend.hadoop.distribution.DistributionFactory;
+import org.talend.hadoop.distribution.ESparkVersion;
+import org.talend.hadoop.distribution.spark.SparkVersionUtil;
 
 /**
  * This class will test an expression in the element parameters. <br>
@@ -267,6 +269,9 @@ public final class Expression {
         if ((simpleExpression.contains("DISTRIB["))) { //$NON-NLS-1$
             return evaluateDistrib(simpleExpression, listParam, currentParam);
         }
+        if ((simpleExpression.contains("SPARK_VERSION["))) { //$NON-NLS-1$
+            return evaluateSparkVersion(simpleExpression, listParam, currentParam);
+        }
 
         List<String> paraNames = getParaNamesFromIsShowFunc(simpleExpression);
         if (paraNames.size() > 0) {
@@ -280,7 +285,7 @@ public final class Expression {
             }
             for (IElementParameter param : listParam) {
                 if (paraName != null && paraName.equals(param.getName())) {
-                    if (simpleExpression.startsWith("!")) {
+                    if (simpleExpression.startsWith("!")) { //$NON-NLS-1$
                         return !param.isShow(param.getShowIf(), param.getNotShowIf(), listParam);
                     } else {
                         return param.isShow(param.getShowIf(), param.getNotShowIf(), listParam);
@@ -754,6 +759,35 @@ public final class Expression {
 
         String methodName = simpleExpression.split("\\].")[1].split("\\[")[0]; //$NON-NLS-1$ //$NON-NLS-2$
         return executeBooleanMethod(methodName, distribution, version, positiveAssertion);
+    }
+
+    // should be private, but need to unitary tested
+    public static boolean evaluateSparkVersion(String simpleExpression, List<? extends IElementParameter> listParam,
+            ElementParameter currentParam) {
+        INode node = retrieveNodeElementFromParameter(currentParam, listParam);
+        ESparkVersion version = SparkVersionUtil.getSparkVersion(node);
+
+        Pattern p = java.util.regex.Pattern.compile("(lt|le|gt|ge|eq|ne)\\s*'(SPARK_.*)'"); //$NON-NLS-1$
+        Matcher m = p.matcher(simpleExpression);
+        if (m.find()) {
+            ESparkVersion versionToTest = ESparkVersion.valueOf(m.group(2));
+            switch (m.group(1)) {
+            case "lt": //$NON-NLS-1$
+                return version.compareTo(versionToTest) < 0;
+            case "le": //$NON-NLS-1$
+                return version.compareTo(versionToTest) <= 0;
+            case "gt": //$NON-NLS-1$
+                return version.compareTo(versionToTest) > 0;
+            case "ge": //$NON-NLS-1$
+                return version.compareTo(versionToTest) >= 0;
+            case "eq": //$NON-NLS-1$
+                return version.compareTo(versionToTest) == 0;
+            case "ne": //$NON-NLS-1$
+                return version.compareTo(versionToTest) != 0;
+            }
+        }
+
+        return false;
     }
 
     /**

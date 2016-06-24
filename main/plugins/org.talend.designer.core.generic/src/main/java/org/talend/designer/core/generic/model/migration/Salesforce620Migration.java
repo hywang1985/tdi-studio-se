@@ -37,11 +37,12 @@ import org.talend.core.runtime.util.GenericTypeUtils;
 import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.Properties.Deserialized;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.property.EnumProperty;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
+import org.talend.daikon.serialize.PostDeserializeSetup;
+import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.designer.core.model.utils.emf.talendfile.ElementParameterType;
 import org.talend.designer.core.model.utils.emf.talendfile.NodeType;
@@ -84,12 +85,12 @@ public class Salesforce620Migration extends AbstractJobMigrationTask {
             public void transform(NodeType node) {
                 ElementParameterType elemParamType = ComponentUtilities.getNodeProperty(node, "PROPERTIES");
                 String propertiesString = elemParamType.getValue();
-                Deserialized<ComponentProperties> fromSerialized = PropertiesImpl.fromSerialized(propertiesString,
-                        ComponentProperties.class, new Properties.PostSerializationSetup<ComponentProperties>() {
+                SerializerDeserializer.Deserialized<ComponentProperties> fromSerialized = Properties.Helper.fromSerializedPersistent(propertiesString,
+                        ComponentProperties.class, new PostDeserializeSetup() {
 
                             @Override
-                            public void setup(ComponentProperties properties) {
-                                properties.setValueEvaluator(new PropertyValueEvaluator() {
+                            public void setup(Object properties) {
+                                ((Properties)properties).setValueEvaluator(new PropertyValueEvaluator() {
 
                                     @Override
                                     public Object evaluate(Property property, Object storedValue) {
@@ -123,8 +124,8 @@ public class Salesforce620Migration extends AbstractJobMigrationTask {
                             }
                         });
                 ComponentProperties newProperties = ComponentsUtils.getComponentProperties(node.getComponentName());
-                updateSubProperties(fromSerialized.properties, newProperties);
-                newProperties.copyValuesFrom(fromSerialized.properties, true, false);
+                updateSubProperties(fromSerialized.object, newProperties);
+                newProperties.copyValuesFrom(fromSerialized.object, true, false);
                 NamedThing nt = newProperties.getProperty("module.moduleName");
                 if (nt != null && nt instanceof Property) {
                     Property moduleNameProperty = (Property) nt;

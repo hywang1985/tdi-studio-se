@@ -153,7 +153,7 @@ public class ExportModelJavaProcessor extends MavenJavaProcessor {
                             IRepositoryViewObject lastVersion = RunProcessPlugin.getDefault().getRepositoryService()
                                     .getProxyRepositoryFactory().getLastVersion(value.toString());
                             if (lastVersion != null) {
-                                boolean hasBatchOrStreamingSubProcess = hasBatchOrStreamingSubProcess(lastVersion.getProperty()
+                                boolean hasBatchOrStreamingSubProcess = JavaProcessorUtilities.hasBatchOrStreamingSubProcess(lastVersion.getProperty()
                                         .getItem());
                                 if (hasBatchOrStreamingSubProcess) {
                                     return true;
@@ -166,57 +166,6 @@ public class ExportModelJavaProcessor extends MavenJavaProcessor {
 
         } catch (PersistenceException e) {
             return false;
-        }
-        return false;
-    }
-
-    /**
-     * DOC PLV Comment method "hasBatchOrStreamingSubProcess".
-     * 
-     * @param mrService
-     * @param lastVersion
-     * @return
-     * @throws PersistenceException
-     */
-    @SuppressWarnings("unchecked")
-    private boolean hasBatchOrStreamingSubProcess(Item item) throws PersistenceException {
-        if (GlobalServiceRegister.getDefault().isServiceRegistered(IMRProcessService.class)) {
-            IMRProcessService batchService = (IMRProcessService) GlobalServiceRegister.getDefault().getService(
-                    IMRProcessService.class);
-            if (batchService.isMapReduceItem(item)) {
-                return true;
-            }
-        }
-        if (GlobalServiceRegister.getDefault().isServiceRegistered(IStormProcessService.class)) {
-            IStormProcessService streamingService = (IStormProcessService) GlobalServiceRegister.getDefault().getService(
-                    IStormProcessService.class);
-            if (streamingService.isStormItem(item)) {
-                return true;
-            }
-        }
-        if (GlobalServiceRegister.getDefault().isServiceRegistered(IMRProcessService.class)
-                || GlobalServiceRegister.getDefault().isServiceRegistered(IStormProcessService.class)) {
-            if (item != null && item.eClass() == PropertiesPackage.Literals.PROCESS_ITEM) {
-                ProcessType processType = ((ProcessItem) item).getProcess();
-                EList<NodeType> nodes = processType.getNode();
-                for (NodeType node : nodes) {
-                    if ("tRunJob".equals(node.getComponentName())) {//$NON-NLS-1$
-                        EList<ElementParameterType> elementParameters = node.getElementParameter();
-                        for (ElementParameterType param : elementParameters) {
-                            if (param.getName() != null && "PROCESS:PROCESS_TYPE_PROCESS".equals(param.getName())) {//$NON-NLS-1$
-                                Object value = param.getValue();
-                                if (value != null && !"".equals(value)) {//$NON-NLS-1$
-                                    IRepositoryViewObject lastVersion = RunProcessPlugin.getDefault().getRepositoryService()
-                                            .getProxyRepositoryFactory().getLastVersion(value.toString());
-                                    if (lastVersion != null) {
-                                        return hasBatchOrStreamingSubProcess(lastVersion.getProperty().getItem());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
         return false;
     }

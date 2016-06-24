@@ -52,10 +52,11 @@ import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.runtime.CoreRuntimePlugin;
 import org.talend.core.runtime.services.IGenericWizardService;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.Properties.Deserialized;
-import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.serialize.PostDeserializeSetup;
+import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.designer.core.generic.constants.IGenericConstants;
+import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.metadata.managment.ui.utils.ConnectionContextHelper;
 import org.talend.metadata.managment.ui.wizard.CheckLastVersionRepositoryWizard;
@@ -189,16 +190,9 @@ public class GenericConnWizard extends CheckLastVersionRepositoryWizard {
         } else {
             String compPropertiesStr = connection.getCompProperties();
             if (compPropertiesStr != null) {
-                Deserialized<ComponentProperties> fromSerialized = PropertiesImpl.fromSerialized(compPropertiesStr,
-                        ComponentProperties.class, new Properties.PostSerializationSetup<ComponentProperties>() {
-
-                            @Override
-                            public void setup(ComponentProperties properties) {
-                                properties.setValueEvaluator(new MetadataContextPropertyValueEvaluator(connection));
-                            }
-                        });
-                if (fromSerialized != null) {
-                    componentWizard = internalService.getTopLevelComponentWizard(fromSerialized.properties, repNode.getId());
+                ComponentProperties properties = ComponentsUtils.getComponentPropertiesFromSerialized(compPropertiesStr, connection);
+                if (properties != null) {
+                    componentWizard = internalService.getTopLevelComponentWizard(properties, repNode.getId());
                 }
             }
         }

@@ -5,9 +5,10 @@
 		<SIGNATURE></SIGNATURE>
 	</HEADER>
 
-	<FAMILIES>
-		<FAMILY>Cloud</FAMILY>
-	</FAMILIES>
+  <FAMILIES>
+		<FAMILY>Databases/Amazon/Redshift</FAMILY>
+    <FAMILY>Cloud/Amazon/Redshift</FAMILY>
+  </FAMILIES>
 
 	<DOCUMENTATION>
 		<URL />

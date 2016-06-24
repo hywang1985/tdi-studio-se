@@ -156,7 +156,8 @@ public class GenericUpdateManager extends RepositoryUpdateManager {
                     isDeleted = false;
                     /* if table name is same but tableId is not same,means table has been deselect and reselect */
                     if (!tableId.equals(oldtableId)) {
-                        drMap.put(prefix + tableLabel, EUpdateResult.RELOAD);
+                        // don't handle reload for generic
+                        // drMap.put(prefix + tableLabel, EUpdateResult.RELOAD);
                     }
                 }
             }

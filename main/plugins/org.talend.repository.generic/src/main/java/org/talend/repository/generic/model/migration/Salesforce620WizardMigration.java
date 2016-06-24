@@ -35,10 +35,10 @@ import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.cwm.helper.PackageHelper;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.property.EnumProperty;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
+import org.talend.daikon.serialize.PostDeserializeSetup;
 import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.repository.generic.model.genericMetadata.GenericConnection;
 import org.talend.repository.generic.model.genericMetadata.GenericConnectionItem;
@@ -123,12 +123,12 @@ public class Salesforce620WizardMigration extends AbstractItemMigrationTask {
      * @return
      */
     private ComponentProperties loadProperties(String serialized, ComponentProperties newProperties) {
-        return PropertiesImpl.fromSerialized(serialized, ComponentProperties.class,
-                new Properties.PostSerializationSetup<ComponentProperties>() {
+        return Properties.Helper.fromSerializedPersistent(serialized, ComponentProperties.class,
+                new PostDeserializeSetup() {
 
                     @Override
-                    public void setup(ComponentProperties properties) {
-                        properties.setValueEvaluator(new PropertyValueEvaluator() {
+                    public void setup(Object properties) {
+                        ((Properties)properties).setValueEvaluator(new PropertyValueEvaluator() {
 
                             @Override
                             public Object evaluate(Property property, Object storedValue) {
@@ -166,7 +166,7 @@ public class Salesforce620WizardMigration extends AbstractItemMigrationTask {
 
                         });
                     }
-                }).properties;
+                }).object;
     }
 
     /**

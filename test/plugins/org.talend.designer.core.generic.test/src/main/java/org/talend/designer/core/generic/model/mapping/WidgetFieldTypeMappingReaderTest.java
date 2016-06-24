@@ -31,11 +31,11 @@ public class WidgetFieldTypeMappingReaderTest {
         Assert.assertEquals("testLabel", nameAndLabel.getDisplayName());//$NON-NLS-1$
         Assert.assertNull(nameAndLabel.getTitle());
         WidgetFieldTypeMappingReader mappingReader = WidgetFieldTypeMappingReader.getInstance();
-        String fieldType = mappingReader.getFieldType("DEFAULT", nameAndLabel, "STRING");//$NON-NLS-1$//$NON-NLS-2$
+        String fieldType = mappingReader.getFieldType("widget.type.default", nameAndLabel, "java.lang.String");//$NON-NLS-1$//$NON-NLS-2$
         Assert.assertEquals("TEXT", fieldType);//$NON-NLS-1$
-        fieldType = mappingReader.getFieldType("DEFAULT", nameAndLabel, null);//$NON-NLS-1$
+        fieldType = mappingReader.getFieldType("widget.type.default", nameAndLabel, null);//$NON-NLS-1$
         Assert.assertEquals("LABEL", fieldType);//$NON-NLS-1$
-        fieldType = mappingReader.getFieldType("HIDDEN_TEXT", nameAndLabel, "HIDDEN_TEXT");//$NON-NLS-1$//$NON-NLS-2$
+        fieldType = mappingReader.getFieldType("widget.type.hidden.text", nameAndLabel, "widget.type.hidden.text");//$NON-NLS-1$//$NON-NLS-2$
         Assert.assertEquals("HIDDEN_TEXT", fieldType);//$NON-NLS-1$
     }
 }

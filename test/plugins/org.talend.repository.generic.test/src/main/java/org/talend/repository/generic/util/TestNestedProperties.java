@@ -15,7 +15,7 @@ package org.talend.repository.generic.util;
 import static org.talend.daikon.properties.presentation.Widget.*;
 import static org.talend.daikon.properties.property.PropertyFactory.*;
 
-import org.talend.components.api.properties.ComponentPropertiesImpl;
+import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -25,11 +25,11 @@ import org.talend.daikon.properties.property.Property;
  * created by ycbai on 2016年3月15日 Detailled comment
  *
  */
-public class TestNestedProperties extends ComponentPropertiesImpl {
+public class TestNestedProperties extends PropertiesImpl {
 
-    public Property userName = newProperty("userName").setRequired(true); //$NON-NLS-1$
+    public Property userName = newProperty("userName").setRequired(); //$NON-NLS-1$
 
-    public Property userPassword = newProperty("userPassword").setRequired(true); //$NON-NLS-1$
+    public Property userPassword = newProperty("userPassword").setRequired(); //$NON-NLS-1$
 
     public TestNestedProperties(String name) {
         super(name);

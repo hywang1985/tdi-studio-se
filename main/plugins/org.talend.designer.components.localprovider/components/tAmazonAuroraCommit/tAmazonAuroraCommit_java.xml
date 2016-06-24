@@ -14,8 +14,8 @@
   </HEADER>
 
   <FAMILIES>
-    <FAMILY>Databases/AmazonRDS/Aurora</FAMILY>
-    <FAMILY>Cloud/AmazonRDS/Aurora</FAMILY>
+    <FAMILY>Databases/Amazon/Aurora</FAMILY>
+    <FAMILY>Cloud/Amazon/Aurora</FAMILY>
   </FAMILIES>
 
   <DOCUMENTATION>

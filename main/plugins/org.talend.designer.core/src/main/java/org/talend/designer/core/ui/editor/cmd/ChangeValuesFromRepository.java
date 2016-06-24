@@ -711,7 +711,8 @@ public class ChangeValuesFromRepository extends ChangeMetadataCommand {
                 if (hasSchema) {
                     for (IElementParameter param : new ArrayList<IElementParameter>(elem.getElementParameters())) {
                         if (param.getFieldType().equals(EParameterFieldType.SCHEMA_TYPE)
-                                || param.getFieldType().equals(EParameterFieldType.SCHEMA_REFERENCE)) {
+                                || (param.getFieldType().equals(EParameterFieldType.SCHEMA_REFERENCE) && EConnectionType.FLOW_MAIN
+                                        .getName().equals(param.getContext()))) {
                             if (!metadataInput) {
                                 IElementParameter repositorySchemaTypeParameter = param.getChildParameters().get(
                                         EParameterName.REPOSITORY_SCHEMA_TYPE.getName());

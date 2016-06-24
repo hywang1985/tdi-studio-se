@@ -213,7 +213,7 @@
       FIELD="FILE"
       NUM_ROW="80"
       REQUIRED="true"
-      SHOW_IF="USE_EXISTING_CLT_FILE == 'false'"
+     
     >
       <DEFAULT>"__COMP_DEFAULT_FILE_DIR__/out.csv"</DEFAULT>
     </PARAMETER>
@@ -223,7 +223,7 @@
       FIELD="CLOSED_LIST"
       NUM_ROW="80"
       REQUIRED="true"
-      SHOW_IF="(USE_EXISTING_CLT_FILE == 'false') AND (INPUT_INTO_TABLE_CLAUSE == 'false')"
+      SHOW_IF="INPUT_INTO_TABLE_CLAUSE == 'false'"
     >
       <ITEMS DEFAULT="INSERT">
         <ITEM NAME="INSERT"           VALUE="INSERT" />

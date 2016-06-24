@@ -72,13 +72,47 @@ class XMLTool{
 <%
 		}
 		
-        StringBuilder valueToUse = new StringBuilder();
-		valueToUse.append(connName).append(".").append(column.getLabel());
-		getFormattedValue(valueToUse.toString(), javaType, column);
+        if(advancedSeparator && JavaTypesManager.isNumberType(javaType, column.isNullable())) { 
+        	if(javaType == JavaTypesManager.BIGDECIMAL) {
+%>
+    		FormatterUtils.format_Number(<%=connName%>.<%=column.getLabel()%>.toPlainString(), <%= thousandsSeparator%>,<%=decimalSeparator %>)					
+<%
+    		} else {
+%>
+    		FormatterUtils.format_Number(String.valueOf(<%=connName%>.<%=column.getLabel()%>), <%= thousandsSeparator %>,<%=decimalSeparator %>)						
+<%
+	   		}
+        } else if(JavaTypesManager.isJavaPrimitiveType( column.getTalendType(), column.isNullable())){
+%>
+            String.valueOf(<%=connName%>.<%=column.getLabel()%>)
+<%
+        }else if(javaType == JavaTypesManager.DATE){
+            if( column.getPattern() != null && column.getPattern().trim().length() != 0 ){
+%>
+            FormatterUtils.format_Date(<%=connName%>.<%=column.getLabel()%>,<%=column.getPattern()%>)
+<%
+            }else{
+%>
+			<%=connName%>.<%=column.getLabel()%>
+<%
+           }
+        }else if (javaType == JavaTypesManager.BIGDECIMAL) {
+%>
+			<%=connName%>.<%=column.getLabel()%>.toPlainString()
+<%
+        }else if (javaType == JavaTypesManager.BYTE_ARRAY) {
+%>
+            new String(<%=connName%>.<%=column.getLabel()%>)
+<%
+        }else{
+%>
+            <%=connName%>.<%=column.getLabel()%>.toString()
+<%
+		}
 		if(column.isNullable()){
 			%>:<% 
 			if(!isNotSetDefault){
-				getFormattedValue(column.getDefault(), javaType, column);
+				%><%=column.getDefault()%><%
 			}else{
 				%>null<%
 			}
@@ -86,42 +120,6 @@ class XMLTool{
 %>
 		)
 <%
-	}
-	
-	private void getFormattedValue(String valueToUse, JavaType javaType, IMetadataColumn column) {
-		boolean hasPatternSet = column.getPattern() != null && !column.getPattern().trim().isEmpty();
-		String pattern = hasPatternSet ? column.getPattern() : null;
-		if(advancedSeparator && JavaTypesManager.isNumberType(javaType, column.isNullable())) { 
-        	if(javaType == JavaTypesManager.BIGDECIMAL) {
-%>
-    		FormatterUtils.format_Number(<%=valueToUse%>.toPlainString(), <%= thousandsSeparator%>,<%=decimalSeparator %>)					
-<%
-    		} else {
-%>
-    		FormatterUtils.format_Number(String.valueOf(<%=valueToUse%>), <%= thousandsSeparator %>,<%=decimalSeparator %>)						
-<%
-	   		}
-        } else if(JavaTypesManager.isJavaPrimitiveType( column.getTalendType(), column.isNullable())){
-%>
-            String.valueOf(<%=valueToUse%>)
-<%
-        }else if(javaType == JavaTypesManager.DATE){
-%>
-            FormatterUtils.format_Date(<%=valueToUse%>,<%=pattern%>)
-<%
-        }else if (javaType == JavaTypesManager.BIGDECIMAL) {
-%>
-			<%=valueToUse%>.toPlainString()
-<%
-        }else if (javaType == JavaTypesManager.BYTE_ARRAY) {
-%>
-            FormatterUtils.format(<%=valueToUse%>, <%=pattern%>)
-<%
-        }else{
-%>
-            String.valueOf(<%=valueToUse%>)
-<%
-		}
 	}
 }
 

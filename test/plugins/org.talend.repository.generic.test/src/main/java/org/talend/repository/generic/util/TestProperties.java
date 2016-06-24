@@ -31,7 +31,7 @@ import org.talend.daikon.properties.property.Property;
  */
 public class TestProperties extends FixedConnectorsComponentProperties {
 
-    public Property userId = newString("userId").setRequired(true); //$NON-NLS-1$
+    public Property userId = newString("userId").setRequired(); //$NON-NLS-1$
 
     public SchemaProperties schema = new SchemaProperties("schema"); //$NON-NLS-1$
 

@@ -15,6 +15,8 @@ package org.talend.designer.core.generic.utils;
 import static org.talend.daikon.properties.presentation.Widget.*;
 import static org.talend.daikon.properties.property.PropertyFactory.*;
 
+import java.util.EnumSet;
+
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
@@ -27,9 +29,10 @@ import org.talend.daikon.properties.property.Property;
  */
 public class TestNestedProperties extends ComponentPropertiesImpl {
 
-    public Property<String> userName = newProperty("userName").setRequired(true); //$NON-NLS-1$
+    public Property<String> userName = newProperty("userName").setRequired(); //$NON-NLS-1$
 
-    public Property<String> userPassword = newProperty("userPassword").setRequired(true); //$NON-NLS-1$
+    public Property<String> userPassword = newProperty("userPassword").setRequired() //$NON-NLS-1$
+            .setFlags(EnumSet.of(Property.Flags.ENCRYPT, Property.Flags.SUPPRESS_LOGGING));
 
     public TestNestedProperties(String name) {
         super(name);

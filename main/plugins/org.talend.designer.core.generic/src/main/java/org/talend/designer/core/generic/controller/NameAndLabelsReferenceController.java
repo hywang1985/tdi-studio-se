@@ -71,10 +71,10 @@ public class NameAndLabelsReferenceController extends AbstractElementPropertySec
             if (gParam != null) {
                 callBeforeActive(gParam);
                 NameAndLabelsDialog nameAndLabelsDialog = new NameAndLabelsDialog(composite.getShell(),
-                        ComponentsUtils.getFormalPossibleValues(gParam));
+                        ComponentsUtils.getFormalPossibleValues(gParam), this.isInWizard());
                 if (nameAndLabelsDialog.open() == IDialogConstants.OK_ID) {
                     String propertyName = (String) button.getData(PARAMETER_NAME);
-                    String result = TalendQuoteUtils.addQuotes(StringUtils.trimToEmpty(nameAndLabelsDialog.getResult()));
+                    String result = StringUtils.trimToEmpty(nameAndLabelsDialog.getResult());
                     Text moduleText = (Text) hashCurControls.get(propertyName);
                     moduleText.setText(result);
                     gParam.setValue(result);
@@ -114,6 +114,7 @@ public class NameAndLabelsReferenceController extends AbstractElementPropertySec
         btnEdit.setData(NAME, MODULE);
         btnEdit.setData(PARAM_OBJ, param);
         btnEdit.setData(PARAMETER_NAME, param.getName());
+        btnEdit.setEnabled(!param.isRepositoryValueUsed());
         // btnEdit.setEnabled(!param.isReadOnly());
         btnEdit.addSelectionListener(new SelectionAdapter() {
 

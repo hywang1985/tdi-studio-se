@@ -138,14 +138,14 @@
 
 	<CODEGENERATION>
 		<IMPORTS>
-			<IMPORT NAME="Java_DOM4J1.6" MODULE="dom4j-1.6.1.jar" MVN="mvn:org.talend.libraries/dom4j-1.6.1/6.0.0"  BundleID="org.apache.servicemix.bundles.dom4j" UrlPath="platform:/plugin/org.talend.libraries.dom4j-jaxen/lib/dom4j-1.6.1.jar"
+			<IMPORT NAME="Java_DOM4J1.6" MODULE="dom4j-1.6.1.jar" MVN="mvn:org.talend.libraries/dom4j-1.6.1/6.0.0" BundleID="org.apache.servicemix.bundles.dom4j" UrlPath="platform:/plugin/org.talend.libraries.dom4j-jaxen/lib/dom4j-1.6.1.jar"
 				REQUIRED_IF="GENERATION_MODE == 'DOM4J'" />
-			<IMPORT NAME="Java_JAXEN1.1" MODULE="jaxen-1.1.1.jar" MVN="mvn:org.talend.libraries/jaxen-1.1.1/6.0.0"  BundleID="org.apache.servicemix.bundles.jaxen" UrlPath="platform:/plugin/org.talend.libraries.dom4j-jaxen/lib/jaxen-1.1.1.jar"
+			<IMPORT NAME="Java_JAXEN1.1" MODULE="jaxen-1.1.1.jar" MVN="mvn:org.talend.libraries/jaxen-1.1.1/6.0.0" BundleID="org.apache.servicemix.bundles.jaxen" UrlPath="platform:/plugin/org.talend.libraries.dom4j-jaxen/lib/jaxen-1.1.1.jar"
 				REQUIRED_IF="GENERATION_MODE == 'DOM4J'" />
 			<IMPORT NAME="Java_xercesImpl" MODULE="xercesImpl.jar" MVN="mvn:org.talend.libraries/xercesImpl/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.apache.xml/lib/xercesImpl.jar"
-				REQUIRED_IF="(GENERATION_MODE == 'XERCES') OR (GENERATION_MODE == 'SAX')" />
+				REQUIRED_IF="(GENERATION_MODE == 'XERCES') OR (GENERATION_MODE == 'SAX')" BundleID="" />
 			<IMPORT NAME="Java_xalan" MODULE="xalan.jar" MVN="mvn:org.talend.libraries/xalan/6.0.0"  UrlPath="platform:/base/plugins/org.apache.xalan_2.7.1.v201005080400.jar"
-                REQUIRED_IF="GENERATION_MODE == 'XERCES'" />
+                REQUIRED_IF="GENERATION_MODE == 'XERCES'" BundleID="" />
 			<IMPORT NAME="Java_talendSAX" MODULE="TalendSAX.jar" MVN="mvn:org.talend.libraries/TalendSAX/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.xml/lib/TalendSAX.jar"
 				REQUIRED_IF="GENERATION_MODE == 'SAX'" />
 			<IMPORT NAME="xpathutil" MODULE="xpathutil-1.0.0.jar" MVN="mvn:org.talend.libraries/xpathutil-1.0.0/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.xml/lib/xpathutil-1.0.0.jar"

@@ -145,6 +145,8 @@ org.talend.components.api.container.RuntimeContainer container_<%=cid%> = new or
     }
 };
 
+int nb_line_<%=cid %> = 0;
+
 <%
 if (def instanceof EndpointComponentDefinition) {
     %>
@@ -180,43 +182,43 @@ if (def instanceof InputComponentDefinition) {
     if (rejects != null && !rejects.isEmpty()) {
         reject = rejects.get(0);
     }
-
-    // Return at this point if there are no output connections.
-    if (main == null && reject == null) {
-        // TODO: does this have any effect?
-        %>
-        for (boolean available = reader_<%=cid%>.start(); available; available = reader_<%=cid%>.advance()) {
-        <%
-        return stringBuffer.toString();
-    }
-
-    // FIXME - multiple outgoing connections?
-
-    IConnection schemaSourceConnector = (main!=null ? main : reject);
-    String schemaSourceConnectorName = schemaSourceConnector.getMetadataTable().getAttachedConnector();
-
-    %>
-    boolean multi_output_is_allowed_<%=cid%> = false;
-    <% //take care SourceOrSink.validate will change the schema if it contains include-all-fields, so need to get design Avro schema before validate %>
-    org.talend.components.api.component.Connector c_<%=cid%> = null;
-    for (org.talend.components.api.component.Connector currentConnector : props_<%=cid %>.getAvailableConnectors(null, true)) {
-        if (currentConnector.getName().equals("<%=schemaSourceConnectorName%>")) {
-            c_<%=cid%> = currentConnector;
+    
+	boolean hasDataOutput = (main != null || reject != null);
+	IndexedRecordToRowStructGenerator irToRow = null;
+	
+	if(hasDataOutput) {
+    	IConnection schemaSourceConnector = (main!=null ? main : reject);
+    	String schemaSourceConnectorName = schemaSourceConnector.getMetadataTable().getAttachedConnector();
+	%>
+        boolean multi_output_is_allowed_<%=cid%> = false;
+        <% //take care SourceOrSink.validate will change the schema if it contains include-all-fields, so need to get design Avro schema before validate %>
+        org.talend.components.api.component.Connector c_<%=cid%> = null;
+        for (org.talend.components.api.component.Connector currentConnector : props_<%=cid %>.getAvailableConnectors(null, true)) {
+            if (currentConnector.getName().equals("<%=schemaSourceConnectorName%>")) {
+                c_<%=cid%> = currentConnector;
+            }
+    
+            if (currentConnector.getName().equals("REJECT")) {//it's better to move the code to javajet
+                multi_output_is_allowed_<%=cid%> = true;
+            }
         }
-
-        if (currentConnector.getName().equals("REJECT")) {//it's better to move the code to javajet
-            multi_output_is_allowed_<%=cid%> = true;
-        }
-    }
-    org.apache.avro.Schema schema_<%=cid%> = props_<%=cid %>.getSchema(c_<%=cid%>, true);
+        org.apache.avro.Schema schema_<%=cid%> = props_<%=cid %>.getSchema(c_<%=cid%>, true);
 
     <%
-    IndexedRecordToRowStructGenerator irToRow = new IndexedRecordToRowStructGenerator(cid, null, columnList);
-    irToRow.generateInitialVariables("schema_" + cid, false);
+    	irToRow = new IndexedRecordToRowStructGenerator(cid, null, columnList);
+    	irToRow.generateInitialVariables("schema_" + cid, false);
+    }
     %>
-
+	
     // Iterate through the incoming data.
-    for (boolean available = reader_<%=cid%>.start(); available; available = reader_<%=cid%>.advance()) {
+    boolean available_<%=cid%> = reader_<%=cid%>.start();
+    
+    resourceMap.put("reader_<%=cid%>", reader_<%=cid%>);
+    
+    for (; available_<%=cid%>; available_<%=cid%> = reader_<%=cid%>.advance()) {
+    	nb_line_<%=cid %>++;
+    	
+    	<%if(hasDataOutput) {%>
         if (multi_output_is_allowed_<%=cid%>) {
             <%if(main!=null){%>
                 <%=main.getName()%> = null;
@@ -226,6 +228,7 @@ if (def instanceof InputComponentDefinition) {
                 <%=reject.getName()%> = null;
             <%}%>
         }
+        <%}%>
 
         try {
             Object data_<%=cid%> = reader_<%=cid%>.getCurrent();
@@ -242,10 +245,10 @@ if (def instanceof InputComponentDefinition) {
             }
             %>
         } catch (org.talend.components.api.exception.DataRejectException e_<%=cid%>) {
+        	java.util.Map<String,Object> info_<%=cid%> = e_<%=cid%>.getRejectInfo();
             <%
             if (reject!=null) {
                 %>
-                java.util.Map<String,Object> info_<%=cid%> = e_<%=cid%>.getRejectInfo();
                 Object data_<%=cid%> = info_<%=cid%>.get("talend_record");
 
                 if (multi_output_is_allowed_<%=cid%>) {
@@ -275,6 +278,12 @@ if (def instanceof InputComponentDefinition) {
                         <%
                     }
                 }
+            } else {
+            %>
+            	//TODO use a method instead of getting method by the special key "error"
+            	String errorMessage_<%=cid%> = "Row "+ nb_line_<%=cid %> + ":" + info_<%=cid%>.get("error");
+    			System.err.println(errorMessage_<%=cid%>);
+            <%
             }
         %>
     }
@@ -290,6 +299,9 @@ if (def instanceof InputComponentDefinition) {
     writeOperation_<%=cid%>.initialize(container_<%=cid%>);
     org.talend.components.api.component.runtime.Writer writer_<%=cid%> = writeOperation_<%=cid%>.createWriter(container_<%=cid%>);
     writer_<%=cid%>.open("<%=cid%>");
+    
+    resourceMap.put("writer_<%=cid%>", writer_<%=cid%>);
+    
     org.talend.components.api.component.Connector c_<%=cid%> = null;
     for (org.talend.components.api.component.Connector currentConnector : props_<%=cid %>.getAvailableConnectors(null, false)) {
         if (currentConnector.getName().equals("MAIN")) {
@@ -298,8 +310,8 @@ if (def instanceof InputComponentDefinition) {
         }
     }
     org.apache.avro.Schema designSchema_<%=cid%> = props_<%=cid %>.getSchema(c_<%=cid%>, false);
-    org.talend.daikon.talend6.Talend6IncomingSchemaEnforcer current_<%=cid%>
-            = new org.talend.daikon.talend6.Talend6IncomingSchemaEnforcer(designSchema_<%=cid%>);
+    org.talend.daikon.di.DiIncomingSchemaEnforcer current_<%=cid%>
+            = new org.talend.daikon.di.DiIncomingSchemaEnforcer(designSchema_<%=cid%>);
     <%
     List<? extends IConnection> outgoingConns = node.getOutgoingSortedConnections();
     if (outgoingConns!=null){

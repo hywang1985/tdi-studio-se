@@ -37,11 +37,14 @@ import org.talend.core.repository.model.ProxyRepositoryFactory;
 import org.talend.core.repository.model.repositoryObject.MetadataTableRepositoryObject;
 import org.talend.cwm.helper.PackageHelper;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.properties.Properties.Deserialized;
 import org.talend.daikon.properties.PropertiesImpl;
+import org.talend.daikon.serialize.PostDeserializeSetup;
+import org.talend.daikon.serialize.SerializerDeserializer;
+import org.talend.designer.core.generic.model.GenericElementParameter;
 import org.talend.designer.core.generic.model.GenericNodeConnector;
 import org.talend.metadata.managment.ui.wizard.context.MetadataContextPropertyValueEvaluator;
 import org.talend.repository.model.IProxyRepositoryFactory;
+
 import orgomg.cwm.objectmodel.core.CoreFactory;
 import orgomg.cwm.objectmodel.core.TaggedValue;
 
@@ -147,7 +150,7 @@ public class SchemaUtils {
         }
     }
 
-    public static void updateComponentSchema(INode node, IMetadataTable metadataTable) {
+    public static void updateComponentSchema(INode node, IMetadataTable metadataTable, Boolean askPropagate) {
         if (node == null || metadataTable == null || node.getComponentProperties() == null) {
             return;
         }
@@ -161,6 +164,9 @@ public class SchemaUtils {
             for (IElementParameter param : new ArrayList<IElementParameter>(node.getElementParameters())) {
                 if (EParameterFieldType.SCHEMA_REFERENCE.equals(param.getFieldType())
                         && connector.getName().equals(param.getContext())) {
+                    if (param instanceof GenericElementParameter) {
+                        ((GenericElementParameter)param).setAskPropagate(askPropagate);
+                    }
                     param.setValue(schema);
                 }
             }
@@ -170,7 +176,7 @@ public class SchemaUtils {
     public static ComponentProperties getCurrentComponentProperties(IMetadataTable table) {
         if (table != null) {
             String serializedProperties = null;
-            Deserialized<ComponentProperties> fromSerializedProperties = null;
+            SerializerDeserializer.Deserialized<ComponentProperties> fromSerializedProperties = null;
             if (table instanceof MetadataTableRepositoryObject) {
                 MetadataTableRepositoryObject metaTableRepObj = (MetadataTableRepositoryObject) table;
                 MetadataTable metadataTable = metaTableRepObj.getTable();
@@ -184,26 +190,18 @@ public class SchemaUtils {
                 }
                 if (serializedProperties != null) {
                     Connection connection = ((ConnectionItem)metaTableRepObj.getViewObject().getProperty().getItem()).getConnection();
-                    fromSerializedProperties = PropertiesImpl.fromSerialized(serializedProperties,
-                            ComponentProperties.class, new Properties.PostSerializationSetup<ComponentProperties>() {
-
-                                @Override
-                                public void setup(ComponentProperties properties) {
-                                    properties.setValueEvaluator(new MetadataContextPropertyValueEvaluator(connection));
-                                }
-                            });
+                    return ComponentsUtils.getComponentPropertiesFromSerialized(serializedProperties, connection);
                 }
             } else if (table instanceof org.talend.core.model.metadata.MetadataTable) {
                 org.talend.core.model.metadata.MetadataTable metaTable = (org.talend.core.model.metadata.MetadataTable) table;
                 Map<String, String> additionalProperties = metaTable.getAdditionalProperties();
                 serializedProperties = additionalProperties.get(IComponentConstants.COMPONENT_PROPERTIES_TAG);
                 if (serializedProperties != null) {
-                    fromSerializedProperties = PropertiesImpl
-                            .fromSerialized(serializedProperties, ComponentProperties.class, null);
+                    fromSerializedProperties = Properties.Helper.fromSerializedPersistent(serializedProperties, ComponentProperties.class, null);
                 }
             }
             if (fromSerializedProperties != null) {
-                return fromSerializedProperties.properties;
+                return fromSerializedProperties.object;
             }
         }
         return null;

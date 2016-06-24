@@ -208,6 +208,7 @@ Export-Package: org.talend.designer.core;
  org.talend.designer.core.ui.editor.subjobcontainer,
  org.talend.designer.core.ui.editor.subjobcontainer.sparkstreaming,
  org.talend.designer.core.ui.editor.update,
+ org.talend.designer.core.ui.editor.update.cmd,
  org.talend.designer.core.ui.preferences;
   uses:="org.eclipse.jface.preference,
    org.talend.core.language,

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.runtime.xml.XmlUtil;
 import org.talend.core.model.metadata.ColumnNameChanged;
@@ -335,7 +336,11 @@ public class RepositoryChangeMetadataCommand extends ChangeMetadataCommand {
 
     @Override
     protected void updateColumnList(IMetadataTable oldTable, IMetadataTable newTable) {
-        IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        IWorkbenchWindow ww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        if (ww == null) {
+            return;
+        }
+        IWorkbenchPage page = ww.getActivePage();
         ComponentSettingsView viewer = (ComponentSettingsView) page.findView(ComponentSettingsView.ID);
         if (viewer == null) {
             return;

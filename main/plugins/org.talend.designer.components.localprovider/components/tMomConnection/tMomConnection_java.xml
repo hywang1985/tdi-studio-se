@@ -163,7 +163,7 @@
   <CODEGENERATION>
     <IMPORTS>
       
-      <IMPORT NAME="ACTIVEMQ LIB" MODULE="activemq-all-5.13.2.jar" MVN="mvn:org.talend.libraries/activemq-all-5.13.2/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.apache/lib/activemq-all-5.13.2.jar" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
+      <IMPORT NAME="ACTIVEMQ LIB" MODULE="activemq-all-5.13.3.jar" MVN="mvn:org.talend.libraries/activemq-all-5.13.3/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.apache/lib/activemq-all-5.13.3.jar" REQUIRED_IF="SERVER == 'ACTIVEMQ'" />
       
       <IMPORT NAME="WEBSPHERE MQ LIB" MODULE="com.ibm.mq-8.0.0.4.jar" MVN="mvn:org.talend.libraries/com.ibm.mq-8.0.0.4/6.0.0"  REQUIRED_IF="(SERVER == 'WEBSPHERE')" />
       <IMPORT NAME="WEBSPHERE MQ LIB" MODULE="com.ibm.mq.allclient-8.0.0.4.jar" MVN="mvn:org.talend.libraries/com.ibm.mq.allclient-8.0.0.4/6.0.0"  REQUIRED_IF="(SERVER == 'WEBSPHERE')" />

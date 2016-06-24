@@ -321,7 +321,7 @@ public class SchemaReferenceController extends AbstractSchemaController {
                                 org.talend.daikon.properties.property.Property schemaProperty = componentProperties
                                         .getValuedProperty(paramName);
                                 if (schemaProperty != null) {
-                                    SchemaUtils.updateComponentSchema(node, outputMetaCopy);
+                                    SchemaUtils.updateComponentSchema(node, outputMetaCopy, null);
                                 }
                             }
                         }
@@ -330,8 +330,10 @@ public class SchemaReferenceController extends AbstractSchemaController {
                                     inputMetadata, inputMetaCopy, originaleOutputTable, outputMetaCopy);
                             return changeMetadataCommand;
                         } else {
-                            originaleOutputTable.setListColumns(outputMetaCopy.getListColumns());
-                            return null;
+                            ChangeMetadataCommand changeMetadataCommand = new ChangeMetadataCommand(node, param, inputNode,
+                                    inputMetadata, inputMetaCopy, originaleOutputTable, outputMetaCopy);
+                            changeMetadataCommand.setPropagate(Boolean.FALSE);
+                            return changeMetadataCommand;
                         }
                     }
                 }

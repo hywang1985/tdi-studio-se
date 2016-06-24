@@ -681,11 +681,12 @@ public class TableController extends AbstractElementPropertySectionController {
                         tmpParam.setListItemsDisplayCodeName(contextParameterNames);
                         tmpParam.setListItemsDisplayName(contextParameterNames);
                         tmpParam.setListItemsValue(contextParameterNames);
-                        if (contextParameterNames.length > 0) {
-                            tmpParam.setDefaultClosedListValue(contextParameterNames[0]);
-                        } else {
-                            tmpParam.setDefaultClosedListValue(""); //$NON-NLS-1$
-                        }
+                        // TDI-35251 won't set default, if not fount, keep error
+                        // if (contextParameterNames.length > 0) {
+                        // tmpParam.setDefaultClosedListValue(contextParameterNames[0]);
+                        // } else {
+                        tmpParam.setDefaultClosedListValue(""); //$NON-NLS-1$
+                        // }
                         // j + 1 because first column is masked
                         TableViewerCreatorColumnNotModifiable column = (TableViewerCreatorColumnNotModifiable) colList.get(j + 1);
 

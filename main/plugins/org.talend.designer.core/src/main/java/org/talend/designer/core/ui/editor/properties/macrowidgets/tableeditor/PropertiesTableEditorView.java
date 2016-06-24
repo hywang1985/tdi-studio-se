@@ -651,6 +651,21 @@ public class PropertiesTableEditorView<B> extends AbstractDataTableEditorView<B>
                                 return Display.getCurrent().getSystemColor(SWT.COLOR_GRAY);
                             }
                         }
+
+                        if (currentParam.getFieldType() == EParameterFieldType.CONTEXT_PARAM_NAME_LIST) {
+                            Object value = ((Map<String, Object>) bean).get(items[curCol]);
+                            boolean found = false;
+                            Object[] items = currentParam.getListItemsValue();
+                            for (int j = 0; j < items.length; j++) {
+                                if (items[j].equals(value)) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                return Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+                            }
+                        }
                         return null;
                     }
 
@@ -697,7 +712,10 @@ public class PropertiesTableEditorView<B> extends AbstractDataTableEditorView<B>
                                 if (value instanceof String) {
                                     boolean found = false;
                                     int index = 0;
-                                    Object[] items = ((IElementParameter) itemsValue[curCol]).getListItemsValue();
+                                    if (currentParam.getFieldType() == EParameterFieldType.CONTEXT_PARAM_NAME_LIST) {
+                                        index = -1; // if not found, won't use first(index 0) instead
+                                    }
+                                    Object[] items = currentParam.getListItemsValue();
                                     for (int j = 0; j < items.length && !found; j++) {
                                         if (items[j].equals(value)) {
                                             found = true;
@@ -925,7 +943,7 @@ public class PropertiesTableEditorView<B> extends AbstractDataTableEditorView<B>
                         Object currentValue = currentLine.get(curParam.getName());
                         String currentDisplay = null;
                         if (currentValue instanceof Integer) {
-                            if (((Integer)currentValue) < curParam.getListItemsDisplayName().length) {
+                            if (((Integer) currentValue) < curParam.getListItemsDisplayName().length) {
                                 currentDisplay = curParam.getListItemsDisplayName()[(Integer) currentValue];
                             }
                         } else if (currentValue instanceof String) {

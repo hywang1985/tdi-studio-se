@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.components.api.component.Connector;
@@ -37,6 +38,7 @@ import org.talend.core.model.process.EConnectionType;
 import org.talend.core.model.process.EParameterFieldType;
 import org.talend.core.model.process.IConnection;
 import org.talend.core.model.process.IElement;
+import org.talend.core.model.process.INode;
 import org.talend.core.model.process.INodeConnector;
 import org.talend.core.model.process.IProcess;
 import org.talend.daikon.NamedThing;
@@ -76,6 +78,8 @@ public class GenericElementParameter extends ElementParameter {
     private boolean isFirstCall;
 
     private boolean drivedByForm;
+    
+    private Boolean askPropagate;
 
     public GenericElementParameter(IElement element, ComponentProperties rootProperties, Form form, Widget widget,
             ComponentService componentService) {
@@ -285,7 +289,6 @@ public class GenericElementParameter extends ElementParameter {
         IElement element = this.getElement();
         if (element instanceof Node) {
             Node node = (Node) element;
-            Boolean propagate = null;
             List<INodeConnector> connectors = node.getConnectorsFromType(EConnectionType.FLOW_MAIN);
             for (INodeConnector connector : connectors) {
                 if (connector instanceof GenericNodeConnector) {
@@ -298,10 +301,16 @@ public class GenericElementParameter extends ElementParameter {
                         IMetadataTable newTable = MetadataToolHelper.convert(metadataTable);
                         if ((!mainTable.sameMetadataAs(newTable) || !newTable.sameMetadataAs(mainTable))) {
                             mainTable.setListColumns(newTable.getListColumns());
-                            if (propagate == null && node.getOutgoingConnections().size() != 0) {
-                                propagate = ChangeMetadataCommand.askPropagate();
+                            if (this.askPropagate == null && node.getOutgoingConnections().size() != 0) {
+                                Display.getDefault().syncExec(new Runnable() {
+                                    
+                                    @Override
+                                    public void run() {
+                                        askPropagate = ChangeMetadataCommand.askPropagate();
+                                    }
+                                });
                             }
-                            if (propagate != null && propagate) {
+                            if (this.askPropagate != null && this.askPropagate) {
                                 for (IConnection connection : node.getOutgoingConnections()) {
                                     if (connector.getName().equals(connection.getConnectorName())) {
                                         ChangeMetadataCommand cmd = new ChangeMetadataCommand(connection.getTarget(), null, null,
@@ -320,6 +329,7 @@ public class GenericElementParameter extends ElementParameter {
                     }
                 }
             }
+            this.askPropagate = null;
         }
     }
 
@@ -418,15 +428,14 @@ public class GenericElementParameter extends ElementParameter {
     }
 
     private Properties getSubProperties() {
-        return ComponentsUtils.getCurrentProperties(rootProperties, getName());
+        return ComponentsUtils.getCurrentProperties(getRootProperties(), getName());
     }
 
     public ComponentProperties getRootProperties() {
+        if (this.getElement() instanceof INode) {
+            return ((INode)this.getElement()).getComponentProperties();
+        }
         return this.rootProperties;
-    }
-
-    public void setRootProperties(ComponentProperties rootProperties) {
-        this.rootProperties = rootProperties;
     }
 
     public boolean isSupportContext() {
@@ -485,6 +494,10 @@ public class GenericElementParameter extends ElementParameter {
         if (property != null) {
             property.setTaggedValue(IGenericConstants.IS_DYNAMIC, mode);
         }
+    }
+    
+    public void setAskPropagate(Boolean askPropagate) {
+        this.askPropagate = askPropagate;
     }
 
 }

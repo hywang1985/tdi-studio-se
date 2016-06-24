@@ -2778,6 +2778,14 @@
               name="ReplaceVarcharArrayWithVarcharIssueTDI35719"
               version="6.2.1">
         </projecttask>
+        <projecttask
+        	  beforeLogon="false"
+              breaks="6.2.0"
+              class="org.talend.repository.model.migration.AddDefaultVersionValueForElasticsearchLookupInput"
+              id="org.talend.repository.model.migration.AddDefaultVersionValueForElasticsearchLookupInput"
+              name="AddDefaultVersionValueForElasticsearchLookupInput"
+              version="6.2.1">
+        </projecttask>
    </extension>
 
    <extension

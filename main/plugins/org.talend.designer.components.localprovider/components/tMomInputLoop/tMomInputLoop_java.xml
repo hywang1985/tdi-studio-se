@@ -288,7 +288,7 @@
     <IMPORTS>
       
       <!-- ActiveMQ -->
-      <IMPORT NAME="ACTIVEMQ LIB" MODULE="activemq-all-5.13.2.jar" MVN="mvn:org.talend.libraries/activemq-all-5.13.2/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.apache/lib/activemq-all-5.13.2.jar"  REQUIRED_IF="(USE_CONNECTION=='false' AND SERVER == 'ACTIVEMQ')" />
+      <IMPORT NAME="ACTIVEMQ LIB" MODULE="activemq-all-5.13.3.jar" MVN="mvn:org.talend.libraries/activemq-all-5.13.3/6.0.0"  UrlPath="platform:/plugin/org.talend.libraries.apache/lib/activemq-all-5.13.3.jar"  REQUIRED_IF="(USE_CONNECTION=='false' AND SERVER == 'ACTIVEMQ')" />
       
       <!-- JBOSS -->
       <IMPORT NAME="JAVA_SSIST" MODULE="javassist.jar" MVN="mvn:org.talend.libraries/javassist/6.0.0"  REQUIRED_IF="(USE_CONNECTION=='false' AND SERVER == 'JBOSS')" />

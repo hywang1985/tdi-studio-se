@@ -15,9 +15,9 @@
     	<SIGNATURE/>
   	</HEADER>
 
-  	<FAMILIES>
-    	<FAMILY>Cloud/AmazonS3</FAMILY>
-  	</FAMILIES>
+  <FAMILIES>
+    <FAMILY>Cloud/Amazon/S3</FAMILY>
+  </FAMILIES>
 
   	<DOCUMENTATION>
     	<URL/>

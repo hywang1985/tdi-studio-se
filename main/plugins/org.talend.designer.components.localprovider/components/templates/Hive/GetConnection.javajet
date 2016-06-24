@@ -254,7 +254,7 @@ java.sql.Connection conn_<%=cid%> = null;
 					String userPrincipal = ElementParameterParser.getValue(node, "__PRINCIPAL__");
 					String keytabPath = ElementParameterParser.getValue(node, "__KEYTAB_PATH__");
                     
-					if((!isCustom && hiveDistrib.doSupportMapRTicket() && useMapRTicket)) {
+					if ((isCustom || hiveDistrib.doSupportMapRTicket()) && useMapRTicket) {
                         %>
                         System.setProperty("pname", "MapRLogin");
                         System.setProperty("https.protocols", "TLSv1.2");
@@ -295,7 +295,7 @@ java.sql.Connection conn_<%=cid%> = null;
 						String url_<%=cid%> = "jdbc:<%=hiveServer%>://" + <%=dbhost%> + ":" + <%=dbport%> + "/" + <%=dbname%> + ";principal=" + <%=hivePrincipal%>;
 <%
 					}
-                    if ((!isCustom && hiveDistrib.doSupportMapRTicket() && useMapRTicket)) {
+					if ((isCustom || hiveDistrib.doSupportMapRTicket()) && useMapRTicket) {
                         %>
                         com.mapr.login.client.MapRLoginHttpsClient maprLogin_<%=cid%> = new com.mapr.login.client.MapRLoginHttpsClient();
                         maprLogin_<%=cid%>.getMapRCredentialsViaKerberos(<%=mapRTicketCluster%>, <%=mapRTicketDuration%>);
@@ -303,8 +303,7 @@ java.sql.Connection conn_<%=cid%> = null;
                     }
 				} else {
                     // Mapr ticket
-                    
-                    if((!isCustom && hiveDistrib.doSupportMapRTicket() && useMapRTicket)) {
+				    if ((isCustom || hiveDistrib.doSupportMapRTicket()) && useMapRTicket) {
                         passwordFieldName = "__MAPRTICKET_PASSWORD__";
                         %>
                         System.setProperty("pname", "MapRLogin");

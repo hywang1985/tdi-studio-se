@@ -488,7 +488,8 @@ try{
 							}else{
 								isArrType = arrayAttrisList.contains(key);
 								if(!isArrType){//Varchar or table name
-									if("ERRORTABLE".equalsIgnoreCase(key)){
+									boolean isTableType = tableNameAttrisList.contains(key);
+									if("ERRORTABLE".equalsIgnoreCase(key) || (isTableType && operatorType.equalsIgnoreCase("LOAD"))){
 									%>
 									   fw_<%=cid %>.write("            ,<%= key %> = '"+<%= dbname %>+"."+<%= value %>+"'<%=lineSeparator%>");
 									<%

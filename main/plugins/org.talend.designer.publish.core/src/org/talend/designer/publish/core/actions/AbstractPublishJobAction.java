@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.StructuredSelection;
+import org.talend.core.GlobalServiceRegister;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.properties.ProcessItem;
 import org.talend.designer.core.model.utils.emf.talendfile.NodeType;
@@ -28,6 +30,7 @@ import org.talend.designer.publish.core.models.BundleModel;
 import org.talend.designer.publish.core.models.FeatureModel;
 import org.talend.designer.publish.core.models.FeaturesModel;
 import org.talend.designer.runprocess.IProcessor;
+import org.talend.designer.runprocess.IRunProcessService;
 import org.talend.repository.model.IRepositoryNode;
 import org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWSWizardPage.JobExportType;
 import org.talend.repository.ui.wizards.exportjob.action.JobExportAction;
@@ -43,7 +46,7 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
 
     private static final String THMAP_COMPONENT_NAME = "tHMap";
 
-    private final IRepositoryNode node;
+    protected final IRepositoryNode node;
 
     private final String groupId;
 
@@ -163,7 +166,15 @@ public abstract class AbstractPublishJobAction implements IRunnableWithProgress 
             ProcessItem processItem = (ProcessItem) node.getObject().getProperty().getItem();
 
             BuildJobManager.getInstance().buildJob(tmpJob.getAbsolutePath(), processItem, processItem.getProperty().getVersion(),
-                    processItem.getProcess().getDefaultContext(), exportChoiceMap, exportType, true, monitor);
+                    processItem.getProcess().getDefaultContext(), exportChoiceMap, exportType, monitor);
+            if (GlobalServiceRegister.getDefault().isServiceRegistered(IRunProcessService.class)) {
+                IRunProcessService service = (IRunProcessService) GlobalServiceRegister.getDefault().getService(
+                        IRunProcessService.class);
+                boolean hasError = service.checkExportProcess(new StructuredSelection(node), true);
+                if (hasError) {
+                    return;
+                }
+            }
 
             monitor.beginTask("Deploy to Artifact Repository....", IProgressMonitor.UNKNOWN);
             FeaturesModel featuresModel = getFeatureModel(tmpJob);

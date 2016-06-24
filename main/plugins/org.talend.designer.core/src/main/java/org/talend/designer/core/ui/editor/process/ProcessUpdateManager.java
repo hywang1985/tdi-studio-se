@@ -1365,7 +1365,12 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                                         });
                                         this.isAddColumn = false;
                                     } else {
-                                        copyUsefulAttribute(copyOfrepositoryMetadata, metadataTable, isColumnUsed);
+                                        if (node.getComponentProperties() != null) {
+                                            // always set columns as used for new component framework
+                                            copyUsefulAttribute(copyOfrepositoryMetadata, metadataTable, true);
+                                        } else {
+                                            copyUsefulAttribute(copyOfrepositoryMetadata, metadataTable, isColumnUsed);
+                                        }
                                     }
 
                                     if (onlySimpleShow
@@ -1756,6 +1761,9 @@ public class ProcessUpdateManager extends AbstractUpdateManager {
                                 continue;
                             }
                             if (param.getFieldType() == EParameterFieldType.PROPERTY_TYPE) {
+                                continue;
+                            }
+                            if (param.getFieldType() == EParameterFieldType.SCHEMA_REFERENCE) {
                                 continue;
                             }
                             String repositoryValue = param.getRepositoryValue();

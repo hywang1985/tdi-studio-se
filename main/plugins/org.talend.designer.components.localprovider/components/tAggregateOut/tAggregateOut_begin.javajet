@@ -209,7 +209,7 @@ if(sizeOps>0){ // T_OutBegin_AggR_114
 		public void checkedIADD(byte a, byte b, boolean checkTypeOverFlow, boolean checkUlp) {
 		    byte r = (byte) (a + b);
 		    if (checkTypeOverFlow && ((a ^ r) & (b ^ r)) < 0) {
-		        throw new RuntimeException(buildOverflowMessage(String.valueOf(a), String.valueOf(b), "'short/Short'", "'int/Integer'"));
+		        throw new RuntimeException(buildOverflowMessage(String.valueOf(a), String.valueOf(b), "'short/Short'", "'byte/Byte'"));
 		    }
 		}
 		
@@ -737,7 +737,7 @@ if(warnings.size() > 0) {
 	%>
 	AggOperationStruct_<%=cid %> operation_result_<%=cid %> = null;
 	AggOperationStruct_<%=cid %> operation_finder_<%=cid %> = new AggOperationStruct_<%=cid %>();
-	java.util.Map<AggOperationStruct_<%=cid %>,AggOperationStruct_<%=cid %>> hash_<%=cid %> = new java.util.LinkedHashMap<AggOperationStruct_<%=cid %>,AggOperationStruct_<%=cid %>>();
+	java.util.Map<AggOperationStruct_<%=cid %>,AggOperationStruct_<%=cid %>> hash_<%=cid %> = new java.util.HashMap<AggOperationStruct_<%=cid %>,AggOperationStruct_<%=cid %>>();
 	<%
 
 if(listFlag){ // G_OutBegin_AggR_192

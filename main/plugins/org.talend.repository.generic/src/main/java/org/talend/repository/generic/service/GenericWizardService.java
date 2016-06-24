@@ -164,6 +164,7 @@ public class GenericWizardService implements IGenericWizardService {
                     if (parameter instanceof GenericElementParameter) {
                         GenericElementParameter genericElementParameter = (GenericElementParameter) parameter;
                         genericElementParameter.callBeforePresent();
+                        genericElementParameter.removePropertyChangeListener(dynamicComposite);
                         genericElementParameter.addPropertyChangeListener(dynamicComposite);
                     }
                 }
@@ -174,7 +175,7 @@ public class GenericWizardService implements IGenericWizardService {
 
     @Override
     public void updateComponentSchema(INode node, IMetadataTable metadataTable) {
-        SchemaUtils.updateComponentSchema(node, metadataTable);
+        SchemaUtils.updateComponentSchema(node, metadataTable, Boolean.FALSE);
     }
 
     @Override

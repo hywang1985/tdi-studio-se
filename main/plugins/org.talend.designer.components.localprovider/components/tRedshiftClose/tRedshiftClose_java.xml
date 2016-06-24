@@ -15,7 +15,8 @@
   </HEADER>
 
   <FAMILIES>
-    <FAMILY>Databases/Redshift</FAMILY>
+		<FAMILY>Databases/Amazon/Redshift</FAMILY>
+    <FAMILY>Cloud/Amazon/Redshift</FAMILY>
   </FAMILIES>
 
   <DOCUMENTATION>

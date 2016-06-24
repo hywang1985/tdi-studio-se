@@ -304,7 +304,7 @@ public class UpdateNodeParameterCommand extends Command {
                         }
                         if ((repositoryValue != null)
                                 && (param.isShow(node.getElementParameters())
-                                        || (node instanceof INode && ((INode) node).getComponent().getName()
+                                        || node.getComponentProperties() != null || (node instanceof INode && ((INode) node).getComponent().getName()
                                                 .equals("tAdvancedFileOutputXML")) || (node instanceof INode && ((INode) node)
                                         .getComponent().getName().equals("tESBProviderRequest")))) { //$NON-NLS-1$
                             if (param.getName().equals(EParameterName.PROPERTY_TYPE.getName())
@@ -486,6 +486,9 @@ public class UpdateNodeParameterCommand extends Command {
                                         paramMaps.add(map);
                                     }
                                 }
+                            } else if (node.getComponentProperties() != null && objectValue == null) {
+                                // for new framework, still save the null value in component
+                                node.setPropertyValue(param.getName(), objectValue);
                             }
                             if (!("tMDMReceive".equals(node.getComponent().getName()) && "XPATH_PREFIX".equals(param //$NON-NLS-1$ //$NON-NLS-2$
                                     .getRepositoryValue()))) {

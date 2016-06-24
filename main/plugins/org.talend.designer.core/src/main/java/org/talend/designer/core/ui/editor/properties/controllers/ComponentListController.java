@@ -278,7 +278,7 @@ public class ComponentListController extends AbstractElementPropertySectionContr
     }
 
     protected static void updateComponentList(Collection<INode> nodeList, INode currentNode, IElementParameter param,
-        boolean isSelectDefaultItem) {
+            boolean isSelectDefaultItem) {
         final Collection<String> componentDisplayNames = new ArrayList<String>();
         final Collection<String> componentUniqueNames = new ArrayList<String>();
         for (INode node : nodeList) {
@@ -291,25 +291,16 @@ public class ComponentListController extends AbstractElementPropertySectionContr
             }
             String displayName = (String) node.getElementParameter("LABEL").getValue(); //$NON-NLS-1$
             if (displayName == null) {
-                displayName = uniqueName + " - " + displayName; //$NON-NLS-1$
+                displayName = uniqueName;
             }
             if (displayName.indexOf("__UNIQUE_NAME__") != -1) { //$NON-NLS-1$
                 displayName = displayName.replaceAll("__UNIQUE_NAME__", uniqueName); //$NON-NLS-1$
-            } else {
+            }
+            if (!displayName.equals(uniqueName)) {
                 displayName = uniqueName + " - " + displayName; //$NON-NLS-1$
             }
-
-            /*
-             * if ("tHashOutput".equals(param.getFilter())) { //$NON-NLS-1$ IElementParameter clearDataParam =
-             * node.getElementParameter("CLEAR_DATA"); //$NON-NLS-1$ // Only allow hashOutput "CLEAR_DATA" is
-             * enable. if (clearDataParam != null && clearDataParam.getValue() != null && (Boolean)
-             * clearDataParam.getValue() == true) { componentUniqueNames.add(uniqueName);
-             * componentDisplayNames.add(displayName); } } else
-             */
-            {
-                componentUniqueNames.add(uniqueName);
-                componentDisplayNames.add(displayName);
-            }
+            componentUniqueNames.add(uniqueName);
+            componentDisplayNames.add(displayName);
         }
 
         param.setListItemsDisplayName(componentDisplayNames.toArray(new String[0]));
@@ -401,7 +392,7 @@ public class ComponentListController extends AbstractElementPropertySectionContr
     }
 
     protected boolean isSelectDefaultItem() {
-        return true;
+        return false;
     }
 
     private static IJobletProviderService getJobletProviderService(IElementParameter param) {

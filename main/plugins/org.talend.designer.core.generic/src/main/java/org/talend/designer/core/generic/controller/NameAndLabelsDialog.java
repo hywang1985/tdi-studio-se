@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.talend.commons.ui.swt.formtools.LabelledText;
 import org.talend.core.ui.composite.ElementsSelectionComposite;
+import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.daikon.NamedThing;
 import org.talend.designer.core.generic.i18n.Messages;
 
@@ -47,11 +48,14 @@ public class NameAndLabelsDialog extends Dialog {
     private ElementsSelectionComposite<NamedThing> selectionComposite;
 
     private LabelledText customObjNameText;
+    
+    boolean isInWizard;
 
-    public NameAndLabelsDialog(Shell parentShell, List<NamedThing> nameAndLabels) {
+    public NameAndLabelsDialog(Shell parentShell, List<NamedThing> nameAndLabels, boolean isInWizard) {
         super(parentShell);
         setShellStyle(getShellStyle() | SWT.RESIZE | SWT.MIN | SWT.APPLICATION_MODAL);
         this.nameAndLabels = nameAndLabels;
+        this.isInWizard = isInWizard;
     }
 
     @Override
@@ -103,6 +107,10 @@ public class NameAndLabelsDialog extends Dialog {
         });
         customObjNameText = new LabelledText(customComposite, Messages.getString("NameAndLabelsDialog.custom.text")); //$NON-NLS-1$
         updateFieldsStatus(useCustomBtn.getSelection());
+        if (!isInWizard) {
+            // set empty quotes to show the user he should fill the name between quotes
+            customObjNameText.setText("\"\""); //$NON-NLS-1$
+        }
 
         return composite;
     }
@@ -130,7 +138,11 @@ public class NameAndLabelsDialog extends Dialog {
         if (selectionComposite.isEnabled()) {
             List<NamedThing> selectedElements = selectionComposite.getSelectedElements();
             if (selectedElements.size() > 0) {
-                return selectedElements.get(0).getName();
+                if (!isInWizard) {
+                    return TalendQuoteUtils.addQuotes(selectedElements.get(0).getName());
+                } else {
+                    return selectedElements.get(0).getName();    
+                }
             }
         } else { // Custom object
             return customObjNameText.getText();

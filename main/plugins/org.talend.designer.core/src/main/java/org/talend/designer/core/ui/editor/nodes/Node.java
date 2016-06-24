@@ -119,7 +119,6 @@ import org.talend.designer.core.ui.ActiveProcessTracker;
 import org.talend.designer.core.ui.editor.AbstractTalendEditor;
 import org.talend.designer.core.ui.editor.cmd.ChangeMetadataCommand;
 import org.talend.designer.core.ui.editor.cmd.ConnectionCreateCommand;
-import org.talend.designer.core.ui.editor.cmd.PropertyChangeCommand;
 import org.talend.designer.core.ui.editor.connections.Connection;
 import org.talend.designer.core.ui.editor.jobletcontainer.JobletContainer;
 import org.talend.designer.core.ui.editor.nodecontainer.NodeContainer;
@@ -2621,6 +2620,8 @@ public class Node extends Element implements IGraphicalNode {
             if (param.getFieldType() == EParameterFieldType.TABLE) {
                 // Check columns which not existing. Note: just check string type of parameter value.
                 Object[] tableItemsValue = param.getListItemsValue();
+                List<Map<String, Object>> tableValues = (List<Map<String, Object>>) param.getValue();
+
                 List<String> columnListParamNames = new ArrayList<String>();
                 List<String> preColumnListParamNames = new ArrayList<String>();
                 if (tableItemsValue != null && tableItemsValue.length > 0) {
@@ -2633,11 +2634,31 @@ public class Node extends Element implements IGraphicalNode {
                             if (itemParameter.getFieldType() == EParameterFieldType.PREV_COLUMN_LIST) {
                                 preColumnListParamNames.add(itemParameter.getName());
                             }
+                            if (itemParameter.getFieldType() == EParameterFieldType.CONTEXT_PARAM_NAME_LIST) {
+                                for (int index = 0; index < tableValues.size(); index++) {
+                                    Map<String, Object> tabMap = tableValues.get(index);
+
+                                    Object value = tabMap.get(itemParameter.getName());
+                                    if (itemParameter.getListItemsValue() != null && value != null) {
+                                        boolean found = false;
+                                        for (Object o : itemParameter.getListItemsValue()) {
+                                            if (o.equals(value)) {
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!found) {
+                                            String warnMessage = Messages.getString(
+                                                    "Node.notExistedContextName", value, index, itemParameter.getDisplayName()); //$NON-NLS-1$
+                                            Problems.add(ProblemStatus.WARNING, this, warnMessage);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
                 StringBuffer inexistentColumns = new StringBuffer();
-                List<Map<String, Object>> tableValues = (List<Map<String, Object>>) param.getValue();
                 if (tableValues != null) {
                     for (Map<String, Object> tabMap : tableValues) {
                         int row = tableValues.indexOf(tabMap) + 1;
@@ -2859,11 +2880,13 @@ public class Node extends Element implements IGraphicalNode {
                                 errorMessage = Messages.getString("Node.parameterWrong", param.getDisplayName()); //$NON-NLS-1$
                                 if (!foundValue) {
                                     Problems.add(ProblemStatus.ERROR, this, errorMessage);
-                                    PropertyChangeCommand changeCommand = new PropertyChangeCommand(this, param.getName(),
-                                            nodeList.get(0).getUniqueName());
-                                    if (this.getCommandStack() != null) {
-                                        this.getCommandStack().execute(changeCommand);
-                                    }
+                                    // TDI-35251 comment for TDI-33285
+                                    // PropertyChangeCommand changeCommand = new PropertyChangeCommand(this,
+                                    // param.getName(),
+                                    // nodeList.get(0).getUniqueName());
+                                    // if (this.getCommandStack() != null) {
+                                    // this.getCommandStack().execute(changeCommand);
+                                    // }
                                 }
                             }
                         }
@@ -3609,7 +3632,7 @@ public class Node extends Element implements IGraphicalNode {
                             Problems.add(ProblemStatus.ERROR, this, errorMessage);
                         }
                         if (nbDynamic > 0 && service != null) {
-                            if (!service.isSupportDynamicType(this.getComponent().getName())) {
+                            if (!service.isSupportDynamicType(this)) {
                                 String errorMessage = Messages.getString("Node.componentDoesntSupportDynamic"); //$NON-NLS-1$
                                 Problems.add(ProblemStatus.ERROR, this, errorMessage);
                             }

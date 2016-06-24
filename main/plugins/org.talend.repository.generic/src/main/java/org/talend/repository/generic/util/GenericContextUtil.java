@@ -31,9 +31,9 @@ import org.talend.core.runtime.util.GenericTypeUtils;
 import org.talend.core.ui.context.model.table.ConectionAdaptContextVariableModel;
 import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.properties.Properties.Deserialized;
-import org.talend.daikon.properties.PropertiesImpl;
+import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.designer.core.generic.constants.IGenericConstants;
 import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.designer.core.model.utils.emf.talendfile.ContextType;
@@ -84,11 +84,7 @@ public class GenericContextUtil {
     private static ComponentProperties getComponentProperties(GenericConnection connection) {
         String compPropertiesStr = connection.getCompProperties();
         if (compPropertiesStr != null) {
-            Deserialized<ComponentProperties> fromSerialized = PropertiesImpl.fromSerialized(compPropertiesStr,
-                    ComponentProperties.class, null);
-            if (fromSerialized != null) {
-                return fromSerialized.properties;
-            }
+            return ComponentsUtils.getComponentPropertiesFromSerialized(compPropertiesStr, connection);
         }
         return null;
     }
@@ -185,15 +181,15 @@ public class GenericContextUtil {
         }
     }
 
-    public static void revertPropertiesValues(ComponentProperties componentProperties, ContextType contextType) {
+    public static void revertPropertiesValues(Properties componentProperties, ContextType contextType) {
         List<NamedThing> props = componentProperties.getProperties();
         for (NamedThing namedThing : props) {
-            if (namedThing instanceof ComponentProperties) {
-                revertPropertiesValues((ComponentProperties) namedThing, contextType);
+            if (namedThing instanceof Properties) {
+                revertPropertiesValues((Properties) namedThing, contextType);
             } else if (namedThing instanceof Property) {
                 Property property = (Property) namedThing;
                 if (ComponentsUtils.isSupportContext(property)) {
-                    String value = property.getStringValue();
+                    String value = String.valueOf(property.getStoredValue());
                     if (value != null && ContextParameterUtils.isContainContextParam(value)) {
                         String valueFromContext = ContextParameterUtils.getOriginalValue(contextType, value);
                         property.setTaggedValue(IGenericConstants.IS_CONTEXT_MODE, false);

@@ -292,7 +292,7 @@ public class ChangeMetadataCommand extends Command {
 
     public void execute(Boolean propagateP) {
         this.propagate = propagateP;
-        if (currentOutputMetadata == null) {
+        if (currentOutputMetadata == null && node != null) {
             currentOutputMetadata = node.getMetadataFromConnector(currentConnector);
         }
         setInternal(true);

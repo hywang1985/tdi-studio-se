@@ -24,7 +24,7 @@ import org.talend.daikon.properties.property.Property;
  */
 public class TestContactProperties extends PropertiesImpl {
 
-    public Property<String> mobile = newProperty("mobile").setRequired(true); //$NON-NLS-1$
+    public Property<String> mobile = newProperty("mobile").setRequired(); //$NON-NLS-1$
 
     public Property<String> email = newProperty("email"); //$NON-NLS-1$
 

@@ -66,11 +66,11 @@ class IndexedRecordToRowStructGenerator {
         }
 
         %>
-        org.talend.daikon.talend6.Talend6OutgoingSchemaEnforcer <%=codeVarSchemaEnforcer%>
-                = new org.talend.daikon.talend6.Talend6OutgoingSchemaEnforcer(<%=codeVarSchemaToEnforce%>, <%=dynamicByPosition%>);
+        org.talend.daikon.di.DiOutgoingSchemaEnforcer <%=codeVarSchemaEnforcer%>
+                = new org.talend.daikon.di.DiOutgoingSchemaEnforcer(<%=codeVarSchemaToEnforce%>, <%=dynamicByPosition%>);
 
         // Create a reusable factory that converts the output of the reader to an IndexedRecord.
-        org.talend.daikon.avro.IndexedRecordAdapterFactory<Object, ? extends org.apache.avro.generic.IndexedRecord> <%=codeVarIndexedRecordAdapter%> = null;
+        org.talend.daikon.avro.converter.IndexedRecordConverter<Object, ? extends org.apache.avro.generic.IndexedRecord> <%=codeVarIndexedRecordAdapter%> = null;
         <%
     }
 
@@ -100,9 +100,9 @@ class IndexedRecordToRowStructGenerator {
         %>
         // Construct the factory once when the first data arrives.
         if (<%=codeVarIndexedRecordAdapter%> == null) {
-            <%=codeVarIndexedRecordAdapter%> = (org.talend.daikon.avro.IndexedRecordAdapterFactory<Object, ? extends org.apache.avro.generic.IndexedRecord>)
+            <%=codeVarIndexedRecordAdapter%> = (org.talend.daikon.avro.converter.IndexedRecordConverter<Object, ? extends org.apache.avro.generic.IndexedRecord>)
                     new org.talend.daikon.avro.AvroRegistry()
-                            .createAdapterFactory(<%=codeVarIndexedRecord%>.getClass());
+                            .createIndexedRecordConverter(<%=codeVarIndexedRecord%>.getClass());
         }
 
         // Enforce the outgoing schema on the input.

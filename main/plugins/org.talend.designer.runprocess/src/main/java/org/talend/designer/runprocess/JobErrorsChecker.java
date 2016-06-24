@@ -43,7 +43,7 @@ import org.talend.core.model.properties.Item;
 import org.talend.core.model.properties.Property;
 import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.model.repository.IRepositoryViewObject;
-import org.talend.core.model.runprocess.LastGenerationInfo;
+import org.talend.core.runtime.process.LastGenerationInfo;
 import org.talend.designer.codegen.ITalendSynchronizer;
 import org.talend.designer.core.IDesignerCoreService;
 import org.talend.designer.core.ui.views.problems.Problems;

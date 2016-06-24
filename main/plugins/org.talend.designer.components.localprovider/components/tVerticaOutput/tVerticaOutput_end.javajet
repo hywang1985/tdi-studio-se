@@ -166,7 +166,16 @@ imports="
 	if (stmtBuilder_<%=cid%> != null && stmtBuilder_<%=cid%>.length() != 0 ) {
 		try {
 			java.io.ByteArrayInputStream bais_<%=cid%> = new ByteArrayInputStream(stmtBuilder_<%=cid%>.toString().getBytes());
-				<%if("VERTICA_7_0_X".equals(db_version) || "VERTICA_6_1_X".equals(db_version) || "VERTICA_6_0".equals(db_version) || "VERTICA_5_1".equals(db_version)){%>
+				<%if("vertica_3.0_jdk_5.jar".equals(db_version) || "vertica_3.5_jdk_5.jar".equals(db_version) || "vertica_4.0_jdk_5.jar".equals(db_version) || "vertica_4.1.7_jdk_5.jar".equals(db_version) || "vertica_4.1.14_jdk_5.jar".equals(db_version)){%>
+					<%dbLog.batch().executeTry(dbLog.str(dataAction));%>
+        			((com.vertica.PGStatement)stmt_<%=cid%>).executeCopyIn(template_<%=cid%>, bais_<%=cid%>);
+        			<%dbLog.batch().executeDone(dbLog.str(dataAction));%>
+        			copiedCount_<%=cid%> +=stmt_<%=cid %>.getUpdateCount(); 
+        			if (stmt_<%=cid%> != null) {
+        				stmt_<%=cid%>.close();
+        				stmt_<%=cid%> = null;
+        			}
+				<%}else{%>
 					<%dbLog.batch().executeTry(dbLog.str(dataAction));%>
         			com.vertica.jdbc.VerticaCopyStream vcs_<%=cid%> = new com.vertica.jdbc.VerticaCopyStream((com.vertica.jdbc.VerticaConnection)conn_<%=cid%>,template_<%=cid%>);
         			vcs_<%=cid%>.start();
@@ -176,15 +185,6 @@ imports="
         			copiedCount_<%=cid%> +=vcs_<%=cid%>.getRowCount();
         			vcs_<%=cid%> = null;
 					<%dbLog.batch().executeDone(dbLog.str(dataAction));%>
-				<%}else{%>
-					<%dbLog.batch().executeTry(dbLog.str(dataAction));%>
-        			((com.vertica.PGStatement)stmt_<%=cid%>).executeCopyIn(template_<%=cid%>, bais_<%=cid%>);
-        			<%dbLog.batch().executeDone(dbLog.str(dataAction));%>
-        			copiedCount_<%=cid%> +=stmt_<%=cid %>.getUpdateCount(); 
-        			if (stmt_<%=cid%> != null) {
-        				stmt_<%=cid%>.close();
-        				stmt_<%=cid%> = null;
-        			}
 				<%}%>
 			if (bais_<%=cid%> != null ) {
 				bais_<%=cid%>.close();
