@@ -42,6 +42,8 @@ import org.talend.core.model.properties.ProcessItem;
 import org.talend.core.model.update.UpdatesConstants;
 import org.talend.core.ui.IJobletProviderService;
 import org.talend.core.ui.process.IGraphicalNode;
+import org.talend.core.utils.TalendQuoteUtils;
+import org.talend.designer.core.IDbMapDesignerService;
 import org.talend.designer.core.i18n.Messages;
 import org.talend.designer.core.model.components.EParameterName;
 import org.talend.designer.core.model.components.EmfComponent;
@@ -82,6 +84,8 @@ public class PropertyChangeCommand extends Command {
 
     // private ChangeMetadataCommand changeMetadataCommand;
     private List<ChangeMetadataCommand> changeMetadataCommands;
+    
+    private Command updateELTMapComponentCommand;
 
     private String propertyTypeName;
 
@@ -242,6 +246,45 @@ public class PropertyChangeCommand extends Command {
 
         oldValue = elem.getPropertyValue(propName);
         elem.setPropertyValue(propName, newValue);
+        if ("ELT_TABLE_NAME".equals(propName) || "ELT_SCHEMA_NAME".equals(propName)) { //$NON-NLS-1$ //$NON-NLS-2$
+            String oldELTValue = ""; //$NON-NLS-1$
+            String newELTValue = ""; //$NON-NLS-1$
+            String oldParamValue = TalendQuoteUtils.removeQuotes((String) oldValue);
+            String newParamValue = TalendQuoteUtils.removeQuotes((String) newValue);
+            if ("ELT_TABLE_NAME".equals(propName)) { //$NON-NLS-1$
+                String schemaName = TalendQuoteUtils.removeQuotes((String) elem.getPropertyValue("ELT_SCHEMA_NAME")); //$NON-NLS-1$
+                if (schemaName == null || "".equals(schemaName.trim())) { //$NON-NLS-1$
+                    oldELTValue = oldParamValue;
+                    newELTValue = newParamValue;
+                } else {
+                    oldELTValue = schemaName + "." + oldParamValue; //$NON-NLS-1$
+                    newELTValue = schemaName + "." + newParamValue; //$NON-NLS-1$
+                }
+            } else {
+                String tableName = TalendQuoteUtils.removeQuotes((String) elem.getPropertyValue("ELT_TABLE_NAME")); //$NON-NLS-1$
+                if (oldParamValue != null && !"".equals(oldParamValue.trim())) {
+                    oldELTValue = oldParamValue + "."; //$NON-NLS-1$
+                } 
+                if (newParamValue != null && !"".equals(newParamValue.trim())) {
+                    newELTValue = newParamValue + "."; //$NON-NLS-1$
+                }
+                oldELTValue = oldELTValue + tableName; //$NON-NLS-1$
+                newELTValue = newELTValue + tableName; //$NON-NLS-1$
+            }
+            List<? extends IConnection> connections = ((Node) elem).getOutgoingConnections();
+            for (IConnection connection : connections) {
+                INode targetNode = connection.getTarget();
+                String componentName = targetNode.getComponent().getName();
+                if (componentName.matches("tELT.+Map")) { //$NON-NLS-1$
+                    if (GlobalServiceRegister.getDefault().isServiceRegistered(IDbMapDesignerService.class)) {
+                        IDbMapDesignerService service = (IDbMapDesignerService) GlobalServiceRegister.getDefault()
+                                .getService(IDbMapDesignerService.class);
+                        updateELTMapComponentCommand = service.getUpdateELTMapComponentCommand(targetNode, connection, oldELTValue, newELTValue);
+                        updateELTMapComponentCommand.execute();
+                    }
+                }
+            }
+        }
 
         // add for bug TDI-26632 by fwang in 11 July, 2013. can't edit parameters if use repository connection.
         IElementParameter propertyTypeParam = elem.getElementParameter(EParameterName.PROPERTY_TYPE.getName());
@@ -799,6 +842,9 @@ public class PropertyChangeCommand extends Command {
                 changeMetadataCommand.undo();
             }
         }
+        if (updateELTMapComponentCommand != null) {
+            updateELTMapComponentCommand.undo();
+        } 
         CodeView.refreshCodeView(elem);
         ComponentSettings.switchToCurComponentSettingsView();
         JobSettings.switchToCurJobSettingsView();
@@ -857,6 +903,9 @@ public class PropertyChangeCommand extends Command {
                 changeMetadataCommand.redo();
             }
         }
+        if (updateELTMapComponentCommand != null) {
+            updateELTMapComponentCommand.redo();
+        } 
         CodeView.refreshCodeView(elem);
         ComponentSettings.switchToCurComponentSettingsView();
         JobSettings.switchToCurJobSettingsView();

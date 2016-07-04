@@ -46,6 +46,10 @@
             class="org.talend.designer.dbmap.service.DbMapService"
             serviceId="IDbMapService">
       </Service>
+      <Service
+            class="org.talend.designer.dbmap.service.DbMapDesignerService"
+            serviceId="IDbMapDesignerService">
+      </Service>
    </extension>
 
 </plugin>

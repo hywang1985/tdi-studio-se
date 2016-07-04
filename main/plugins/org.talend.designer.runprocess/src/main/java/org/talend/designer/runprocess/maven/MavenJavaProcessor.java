@@ -301,6 +301,8 @@ public class MavenJavaProcessor extends JavaProcessor {
     @Override
     public void build(IProgressMonitor monitor) throws Exception {
         final ITalendProcessJavaProject talendJavaProject = getTalendJavaProject();
+        // compile with JDT first in order to make the maven packaging work with a JRE.
+        talendJavaProject.buildModules(monitor, null, null);
 
         final Map<String, Object> argumentsMap = new HashMap<>();
         argumentsMap.put(TalendProcessArgumentConstant.ARG_GOAL, getGoals());

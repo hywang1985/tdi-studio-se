@@ -358,7 +358,7 @@ public class ConnectionCreateCommand extends Command {
                 newMetadata = null;
 
                 if (source.isELTComponent()) {
-                    if (source.getComponent().getName().equals("tELTOracleInput")) {
+                    if (source.getElementParameter("ELT_SCHEMA_NAME") != null) {
                         connectionName = askForConnectionSchemaAndTableName(source.getLabel(), connectionName);
                     } else {
                         connectionName = askForConnectionName(source.getLabel(), connectionName);

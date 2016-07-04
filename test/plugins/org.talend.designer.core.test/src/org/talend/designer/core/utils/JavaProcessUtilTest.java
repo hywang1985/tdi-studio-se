@@ -12,16 +12,21 @@
 // ============================================================================
 package org.talend.designer.core.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.talend.core.model.components.ComponentCategory;
+import org.talend.core.model.components.IComponent;
 import org.talend.core.model.general.ModuleNeeded;
 import org.talend.core.model.process.IElementParameter;
 import org.talend.core.model.process.INode;
@@ -29,20 +34,17 @@ import org.talend.designer.core.model.components.DummyComponent;
 import org.talend.designer.core.model.components.ElementParameter;
 import org.talend.designer.core.model.process.DataNode;
 
-
 /**
- * created by nrousseau on Jun 8, 2016
- * Detailled comment
+ * created by nrousseau on Jun 8, 2016 Detailled comment
  *
  */
 public class JavaProcessUtilTest {
 
-
     @Test
     public void testFindMoreLibraries() {
         // ensure the CAMEL is not added as jar dependency
-        DummyComponent comp = Mockito.mock(DummyComponent.class);
-        Mockito.when(comp.getType()).thenReturn(ComponentCategory.CATEGORY_4_CAMEL.getName());
+        DummyComponent comp = mock(DummyComponent.class);
+        when(comp.getType()).thenReturn(ComponentCategory.CATEGORY_4_CAMEL.getName());
         INode node = new DataNode(comp, ""); //$NON-NLS-1$
         IElementParameter param = new ElementParameter(node);
         param.setName("HOTLIBS");
@@ -64,6 +66,32 @@ public class JavaProcessUtilTest {
         JavaProcessUtil.findMoreLibraries(null, modulesNeeded, param);
         assertEquals(1, modulesNeeded.size());
         assertEquals("camel.jar", modulesNeeded.get(0).getModuleName());
+    }
+
+    @Test
+    public void testGetChildrenModules_noChildren() {
+        INode node = mock(INode.class);
+        IComponent component = mock(IComponent.class);
+        when(node.getComponent()).thenReturn(component);
+        when(component.getName()).thenReturn("tLogRow");
+
+        List<ModuleNeeded> childrenModules = JavaProcessUtil.getChildrenModules(node, Collections.emptySet(), false);
+        assertTrue(childrenModules.isEmpty());
+    }
+
+    // @Test
+    public void testGetChildrenModules_withChildren() {
+        fail("Not impl yet!");
+    }
+
+    // @Test
+    public void testGetChildrenModules_independent() {
+        fail("Not impl yet!");
+    }
+
+    // @Test
+    public void testGetChildrenModules_dynamicJob() {
+        fail("Not impl yet!");
     }
 
 }

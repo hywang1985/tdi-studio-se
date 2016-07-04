@@ -41,6 +41,7 @@ import org.talend.core.utils.TalendQuoteUtils;
 import org.talend.designer.core.generic.model.GenericElementParameter;
 import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.designer.core.i18n.Messages;
+import org.talend.designer.core.ui.editor.cmd.PropertyChangeCommand;
 import org.talend.designer.core.ui.editor.nodes.Node;
 import org.talend.designer.core.ui.editor.properties.controllers.AbstractElementPropertySectionController;
 import org.talend.designer.core.ui.editor.properties.controllers.creator.SelectAllTextControlCreator;
@@ -77,7 +78,8 @@ public class NameAndLabelsReferenceController extends AbstractElementPropertySec
                     String result = StringUtils.trimToEmpty(nameAndLabelsDialog.getResult());
                     Text moduleText = (Text) hashCurControls.get(propertyName);
                     moduleText.setText(result);
-                    gParam.setValue(result);
+                    PropertyChangeCommand pcc = new PropertyChangeCommand(elem, propertyName, result);
+                    return pcc;
                 }
             }
         }

@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.widgets.Composite;
 import org.talend.commons.exception.ExceptionHandler;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
 import org.talend.core.model.properties.ConnectionItem;
+import org.talend.core.model.properties.Property;
+import org.talend.core.model.repository.ERepositoryObjectType;
 import org.talend.core.ui.check.ICheckListener;
 import org.talend.core.ui.check.IChecker;
 import org.talend.daikon.properties.presentation.Form;
@@ -29,9 +31,11 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.designer.core.generic.model.GenericElementParameter;
 import org.talend.designer.core.generic.utils.ComponentsUtils;
 import org.talend.designer.core.model.components.ElementParameter;
+import org.talend.metadata.managment.ui.wizard.AbstractNamedWizardPage;
 import org.talend.metadata.managment.ui.wizard.context.MetadataContextPropertyValueEvaluator;
 import org.talend.repository.generic.handler.IContextHandler;
 import org.talend.repository.generic.model.genericMetadata.GenericConnection;
+import org.talend.repository.generic.model.genericMetadata.GenericConnectionItem;
 import org.talend.repository.generic.ui.context.ContextComposite;
 import org.talend.repository.generic.ui.context.handler.GenericContextHandler;
 
@@ -40,7 +44,7 @@ import org.talend.repository.generic.ui.context.handler.GenericContextHandler;
  * created by ycbai on 2015年9月29日 Detailled comment
  *
  */
-public abstract class GenericWizardPage extends WizardPage {
+public abstract class GenericWizardPage extends AbstractNamedWizardPage {
 
     protected List<ElementParameter> parameters = new ArrayList<>();
 
@@ -61,6 +65,9 @@ public abstract class GenericWizardPage extends WizardPage {
     protected boolean addContextFields;
 
     private IContextHandler contextHandler;
+    
+    protected IStatus genericStatus;
+
 
     public GenericWizardPage(ConnectionItem connectionItem, boolean isRepositoryObjectEditable, String[] existingNames,
             boolean creation, Form form, ComponentService compService, boolean addContextFields) {
@@ -70,6 +77,7 @@ public abstract class GenericWizardPage extends WizardPage {
         this.form = form;
         this.compService = compService;
         this.addContextFields = addContextFields;
+        genericStatus = createOkStatus();
         setupPropertyValueEvaluator();
     }
 
@@ -133,6 +141,12 @@ public abstract class GenericWizardPage extends WizardPage {
     public Form getForm() {
         return this.form;
     }
+    
+    @Override
+    protected IStatus[] getStatuses() {
+        return new IStatus[] { nameStatus, genericStatus };
+    }
+
 
     protected void addCheckListener(IChecker checker) {
         ICheckListener checkListener = new ICheckListener() {
@@ -141,21 +155,17 @@ public abstract class GenericWizardPage extends WizardPage {
             public void checkPerformed(IChecker source) {
                 String status = source.getStatus();
                 if (source.isStatusOnError()) {
-                    setErrorMessage(status);
+                    genericStatus = createStatus(IStatus.ERROR, status);
                 } else {
-                    setErrorMessage(null);
+                    genericStatus = createOkStatus();
                     if (status != null) {
-                        setMessage(status, source.getStatusLevel());
+                        genericStatus = createStatus(source.getStatusLevel(), status);
                     }
                 }
                 updatePageStatus();
             }
         };
         checker.setListener(checkListener);
-    }
-
-    protected void updatePageStatus() {
-        setPageComplete(getErrorMessage() == null);
     }
 
     public List<ElementParameter> getParameters() {
@@ -184,6 +194,31 @@ public abstract class GenericWizardPage extends WizardPage {
 
     public GenericConnection getConnection() {
         return (GenericConnection) connectionItem.getConnection();
+    }
+
+    /* (non-Javadoc)
+     * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
+     */
+    @Override
+    public void createControl(Composite parent) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see org.talend.metadata.managment.ui.wizard.AbstractNamedWizardPage#getRepositoryObjectType()
+     */
+    @Override
+    public ERepositoryObjectType getRepositoryObjectType() {
+        return ERepositoryObjectType.getType(((GenericConnectionItem) connectionItem).getTypeName());
+    }
+
+    /* (non-Javadoc)
+     * @see org.talend.metadata.managment.ui.wizard.AbstractNamedWizardPage#getProperty()
+     */
+    @Override
+    public Property getProperty() {
+        return connectionItem.getProperty();
     }
 
 }

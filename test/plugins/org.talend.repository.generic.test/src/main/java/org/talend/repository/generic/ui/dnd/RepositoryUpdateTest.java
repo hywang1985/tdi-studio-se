@@ -79,7 +79,6 @@ public class RepositoryUpdateTest {
 
             GenericConnection connection = (GenericConnection) createBasicConnection(id).getConnection();
             setupPropertiesWithoutProxy(id);
-            prepareTableForTest(id);
             updateNode(id, node, connection);
 
             testRepositoryValue(node, "connection.userPassword.userId", "\"myUser\""); //$NON-NLS-1$  //$NON-NLS-2$
@@ -91,8 +90,45 @@ public class RepositoryUpdateTest {
             testRepositoryValue(node, "connection.proxy.userPassword.password", "\"\""); //$NON-NLS-1$  //$NON-NLS-2$
 
             setupPropertiesWithProxy(id);
-            prepareTableForTest(id);
             updateNode(id, node, connection);
+
+            testRepositoryValue(node, "connection.userPassword.userId", "\"myUser\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.userPassword.password", "\"myPassword\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.useProxy", Boolean.TRUE); //$NON-NLS-1$
+            testRepositoryValue(node, "connection.proxy.host", "\"host\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.port", 1234); //$NON-NLS-1$
+            testRepositoryValue(node, "connection.proxy.userPassword.userId", "\"proxyUser\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.userPassword.password", "\"proxyPassword\""); //$NON-NLS-1$  //$NON-NLS-2$
+
+        } finally {
+            IRepositoryViewObject object = ProxyRepositoryFactory.getInstance().getLastVersion(id);
+            if (object != null) {
+                ProxyRepositoryFactory.getInstance().deleteObjectPhysical(object);
+            }
+        }
+    }
+    
+    @Test
+    public void testRepositoryChangeFromConnection() throws PersistenceException {
+        String id = "testId"; //$NON-NLS-1$
+        try {
+            IComponent component = ComponentsFactoryProvider.getInstance().get("tSalesforceInput", "DI"); //$NON-NLS-1$ //$NON-NLS-2$
+            Node node = new Node(component, new Process(new FakePropertyImpl()));
+
+            GenericConnection connection = (GenericConnection) createBasicConnection(id).getConnection();
+            setupPropertiesWithoutProxy(id);
+            updateNodeConnectionOnly(id, node, connection);
+
+            testRepositoryValue(node, "connection.userPassword.userId", "\"myUser\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.userPassword.password", "\"myPassword\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.useProxy", Boolean.FALSE); //$NON-NLS-1$
+            testRepositoryValue(node, "connection.proxy.host", "\"\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.port", null); //$NON-NLS-1$
+            testRepositoryValue(node, "connection.proxy.userPassword.userId", "\"\""); //$NON-NLS-1$  //$NON-NLS-2$
+            testRepositoryValue(node, "connection.proxy.userPassword.password", "\"\""); //$NON-NLS-1$  //$NON-NLS-2$
+
+            setupPropertiesWithProxy(id);
+            updateNodeConnectionOnly(id, node, connection);
 
             testRepositoryValue(node, "connection.userPassword.userId", "\"myUser\""); //$NON-NLS-1$  //$NON-NLS-2$
             testRepositoryValue(node, "connection.userPassword.password", "\"myPassword\""); //$NON-NLS-1$  //$NON-NLS-2$
@@ -235,17 +271,10 @@ public class RepositoryUpdateTest {
         };
         return ur;
     }
-
+    
     private void updateNode(String id, Node node, GenericConnection connection) {
         MetadataTable table = prepareTableForTest(id);
-        IElementParameter propertyParam = node.getElementParameterFromField(EParameterFieldType.PROPERTY_TYPE);
-        propertyParam.getChildParameters().get(EParameterName.PROPERTY_TYPE.getName()).setValue(EmfComponent.REPOSITORY);
-        propertyParam.getChildParameters().get(EParameterName.REPOSITORY_PROPERTY_TYPE.getName()).setValue(id);
-        ChangeValuesFromRepository command = new ChangeValuesFromRepository(node, connection, null, propertyParam.getName()
-                + ":" + EParameterName.REPOSITORY_PROPERTY_TYPE.getName(), id, true); //$NON-NLS-1$
-
-        command.execute(true);
-
+        updateNodeConnectionOnly(id, node, connection);
         IElementParameter schemaParam = node.getElementParameterFromField(EParameterFieldType.SCHEMA_REFERENCE);
 
         String value = id + " - " + table.getLabel(); //$NON-NLS-1$
@@ -253,6 +282,17 @@ public class RepositoryUpdateTest {
                 + EParameterName.REPOSITORY_SCHEMA_TYPE.getName(), value, ConvertionHelper.convert(table), null, connection);
 
         command2.execute(true);
+    }
+
+
+    private void updateNodeConnectionOnly(String id, Node node, GenericConnection connection) {
+        IElementParameter propertyParam = node.getElementParameterFromField(EParameterFieldType.PROPERTY_TYPE);
+        propertyParam.getChildParameters().get(EParameterName.PROPERTY_TYPE.getName()).setValue(EmfComponent.REPOSITORY);
+        propertyParam.getChildParameters().get(EParameterName.REPOSITORY_PROPERTY_TYPE.getName()).setValue(id);
+        ChangeValuesFromRepository command = new ChangeValuesFromRepository(node, connection, null, propertyParam.getName()
+                + ":" + EParameterName.REPOSITORY_PROPERTY_TYPE.getName(), id, true); //$NON-NLS-1$
+
+        command.execute(true);
     }
 
     /**

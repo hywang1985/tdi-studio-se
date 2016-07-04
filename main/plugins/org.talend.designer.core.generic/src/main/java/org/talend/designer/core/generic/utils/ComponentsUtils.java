@@ -272,7 +272,8 @@ public class ComponentsUtils {
                 Property property = (Property) widgetProperty;
                 param.setRequired(property.isRequired());
                 param.setValue(getParameterValue(element, property, fieldType, isInitializing));
-                if (EParameterFieldType.NAME_SELECTION_AREA.equals(fieldType)) {
+                boolean isNameProperty = IGenericConstants.NAME_PROPERTY.equals(param.getParameterName());
+                if (EParameterFieldType.NAME_SELECTION_AREA.equals(fieldType) || isNameProperty) {
                     // Disable context support for this filed type.
                     param.setSupportContext(false);
                 } else {

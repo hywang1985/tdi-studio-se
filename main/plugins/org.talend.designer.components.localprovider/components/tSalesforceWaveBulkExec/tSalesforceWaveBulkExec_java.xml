@@ -347,8 +347,8 @@
         />
         <IMPORT
             NAME="partner"
-            MODULE="partnerBulk-34.jar"
-            MVN="mvn:org.talend.libraries/partnerBulk-34/6.1.0"
+            MODULE="partner-34.0.0.jar"
+            MVN="mvn:org.talend.components.salesforce/partner/34.0.0"
             REQUIRED_IF="USE_EXISTING_CONNECTION == 'false'"
         />
         <IMPORT

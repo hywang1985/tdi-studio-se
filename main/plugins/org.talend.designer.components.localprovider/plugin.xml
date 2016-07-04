@@ -838,13 +838,14 @@
         <libraryNeeded
             context="plugin:org.talend.libraries.hadoop.hdp.2.3"
             id="talend-spark-assembly-HDP_2_3"
-            name="talend-spark-assembly-1.4.1.2.3.2.0-2950-hadoop2.7.1.2.3.2.0-2950-without-parquet.jar" mvn_uri="mvn:org.talend.libraries/talend-spark-assembly-1.4.1.2.3.2.0-2950-hadoop2.7.1.2.3.2.0-2950-without-parquet/6.1.0">
+            name="talend-spark-assembly-1.4.1.2.3.2.0.jar" 
+            mvn_uri="mvn:org.talend.libraries/talend-spark-assembly-1.4.1.2.3.2.0/6.1.0">
         </libraryNeeded>
 
         <libraryNeeded
             context="plugin:org.talend.libraries.hadoop.hdp.2.3"
             id="spark-streaming-kafka-assembly-HDP_2_3"
-            name="spark-streaming-kafka-assembly_2.10-1.4.1.2.3.2.0-2950.jar" 
+            name="spark-streaming-kafka-assembly_2.10-1.4.1.2.3.2.0-2950.jar"
             mvn_uri="mvn:org.talend.libraries/spark-streaming-kafka-assembly_2.10-1.4.1.2.3.2.0-2950/6.1.0">
         </libraryNeeded>
 
@@ -1800,7 +1801,7 @@
          	name="commons-codec-1.4.jar" mvn_uri="mvn:org.talend.libraries/commons-codec-1.4/6.0.0"
          	uripath="platform:/plugin/org.talend.libraries.apache.common/lib/commons-codec-1.4.jar">
     	</libraryNeeded>
-    	
+
        <libraryNeeded
             context="plugin:org.talend.libraries.apache.common"
             id="commons-codec-1.5.jar"
@@ -2946,7 +2947,7 @@
         </libraryNeeded>
         <libraryNeeded
             id="commons-lang3-3.0.jar"
-            name="commons-lang3-3.0.jar" mvn_uri="mvn:org.talend.libraries/commons-lang3-3.0/6.0.0" 
+            name="commons-lang3-3.0.jar" mvn_uri="mvn:org.talend.libraries/commons-lang3-3.0/6.0.0"
             context="plugin:org.talend.libraries.apache.common"
             uripath="platform:/plugin/org.talend.libraries.apache.common/lib/commons-lang3-3.0.jar">
         </libraryNeeded>
@@ -4242,7 +4243,12 @@
             <library id="netty-all-4.0.23.Final.jar"/>
             <library id="protobuf-java-2.5.0.jar"/>
             <library id="slf4j-api-1.7.10.jar"/>
+            <library id="slf4j-log4j12-1.7.10.jar"/>
             <library id="zookeeper-HDP_2_3"/>
+            <library id="hadoop-hdfs-HDP_2_3"/>
+            <library id="servlet-api-2.5.jar"/>
+            <library id="commons-io-2.4.jar"/>
+            <library id="commons-cli-1.2.jar"/>
         </libraryNeededGroup>
 
 	    <!-- HBase libraries for HDP 2.2 -->
@@ -7151,7 +7157,7 @@
                  id="derby-10.4.2.0.jar">
              </library>
         </libraryNeededGroup>
-        
+
         <libraryNeededGroup
                 description="The lastest Hive libraries of MAPR41X"
                 id="HIVE100-LIB-MAPR41X_LASTEST"
@@ -7466,7 +7472,7 @@
                  id="high-scale-lib-1.1.1.jar">
              </library>
         </libraryNeededGroup>
-        
+
         <libraryNeededGroup
                 description="The lastest Hive hbase storage libraries of MAPR41X"
                 id="HIVE100-HBASE-LIB-MAPR41X_LASTEST"

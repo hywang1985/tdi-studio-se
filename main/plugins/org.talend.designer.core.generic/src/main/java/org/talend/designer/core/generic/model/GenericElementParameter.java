@@ -151,7 +151,7 @@ public class GenericElementParameter extends ElementParameter {
             }
         } else if (widgetProperty instanceof Property) {
             Property se = (Property<?>) widgetProperty;
-            Object oldValue = se.getValue();
+            Object oldValue = se.getStoredValue();
             Object value = newValue;
             List<?> propertyPossibleValues = ((Property<?>) widgetProperty).getPossibleValues();
             if (propertyPossibleValues != null) {
@@ -187,7 +187,7 @@ public class GenericElementParameter extends ElementParameter {
     }
 
     private void fireValidateStatusEvent() {
-        if (hasPropertyChangeListener()) {
+        if (hasPropertyChangeListener() && this.getFieldType() != EParameterFieldType.TEXT) {
             this.pcs.firePropertyChange(IElementParameterEventProperties.EVENT_VALIDATE_RESULT_UPDATE, null, getSubProperties()
                     .getValidationResult());
         }
@@ -333,7 +333,7 @@ public class GenericElementParameter extends ElementParameter {
         }
     }
 
-    private String getParameterName() {
+    public String getParameterName() {
         String paramName = getName();
         if (paramName.indexOf(IGenericConstants.EXP_SEPARATOR) != -1) {
             paramName = paramName.substring(paramName.lastIndexOf(IGenericConstants.EXP_SEPARATOR) + 1);

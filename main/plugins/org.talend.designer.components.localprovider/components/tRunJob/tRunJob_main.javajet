@@ -290,13 +290,13 @@ String inputConnName = null;
 	%> 
 	java.util.List<String> paraListForLog_<%=cid %> = new java.util.ArrayList<String>();
 	paraListForLog_<%=cid %>.addAll(paraList_<%=cid %>);
-	List<String> parametersToEncrypt = new java.util.ArrayList<String>();
+	List<String> parametersToEncrypt_<%=cid %> = new java.util.ArrayList<String>();
 	<%
 		List<IContextParameter> params = currentProcess.getContextManager().getDefaultContext().getContextParameterList();
 		for (IContextParameter ctxParam :params){
 			if("id_Password".equals(ctxParam.getType())) {
 			%>
-			parametersToEncrypt.add("<%=ctxParam.getName() %>");
+			parametersToEncrypt_<%=cid %> .add("<%=ctxParam.getName() %>");
 			<%
 			}
 		}
@@ -328,7 +328,7 @@ String inputConnName = null;
 			<%
 			if(printParameter) {
 			%>
-			if(parametersToEncrypt.contains(key_<%=cid %>) && value_<%=cid %> != null) {
+			if(parametersToEncrypt_<%=cid %> .contains(key_<%=cid %>) && value_<%=cid %> != null) {
 				paraListForLog_<%=cid %>.add("--context_param " + key_<%=cid %> + "=" + routines.system.PasswordEncryptUtil.encryptPassword(String.valueOf(value_<%=cid %>)));
 			} else {
 				paraListForLog_<%=cid %>.add("--context_param " + key_<%=cid %> + "=" + value_<%=cid %>);
@@ -356,7 +356,7 @@ String inputConnName = null;
 		obj_<%=cid%> = <%=value %>;
 		paraList_<%=cid %>.add("--context_param <%=name %>=" + RuntimeUtils.tRunJobConvertContext(obj_<%=cid%>));
 		<% if(printParameter){ %>
-		if(parametersToEncrypt.contains("<%=name %>") && obj_<%=cid%> != null) {
+		if(parametersToEncrypt_<%=cid %> .contains("<%=name %>") && obj_<%=cid%> != null) {
 			paraListForLog_<%=cid %>.add("--context_param <%=name %>=" + routines.system.PasswordEncryptUtil.encryptPassword(String.valueOf(RuntimeUtils.tRunJobConvertContext(obj_<%=cid%>))));
 		} else {
 			paraListForLog_<%=cid %>.add("--context_param <%=name %>=" + RuntimeUtils.tRunJobConvertContext(obj_<%=cid%>));

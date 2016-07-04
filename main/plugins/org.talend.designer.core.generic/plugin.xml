@@ -114,11 +114,6 @@
              name="widget.type.file"
              widgetType="widget.type.file">
        </Mapping>
-       <Mapping
-             mapFieldType="DATA_SET_ID"
-             name="widget.type.dataset.selection"
-             widgetType="widget.type.dataset.selection">
-       </Mapping>
    </extension>
    <extension
          point="org.talend.designer.core.generators">

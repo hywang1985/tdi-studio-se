@@ -228,21 +228,6 @@ public class DynamicComposite extends MultipleThreadDynamicComposite implements 
         return false;
     }
 
-    private void updateProperty(String newPropertyName) {
-        if (connectionItem == null) {
-            return;
-        }
-        Connection connection = connectionItem.getConnection();
-        Property connectionProperty = connectionItem.getProperty();
-        String propertyName = StringUtils.trimToNull(newPropertyName);
-        connectionProperty.setDisplayName(propertyName);
-        connectionProperty.setLabel(propertyName);
-        connectionProperty.setModificationDate(new Date());
-        connectionProperty.setLabel(propertyName);
-        connection.setName(propertyName);
-        connection.setLabel(propertyName);
-    }
-
     private void addUpdateParameterIfNotExist(List<ElementParameter> parameters) {
         boolean isExist = false;
         for (ElementParameter elementParameter : parameters) {
@@ -321,9 +306,6 @@ public class DynamicComposite extends MultipleThreadDynamicComposite implements 
         String propertyName = event.getPropertyName();
         if (IElementParameterEventProperties.EVENT_PROPERTY_VALUE_CHANGED.equals(propertyName)) {
             reset(true);
-        } else if (IElementParameterEventProperties.EVENT_PROPERTY_NAME_CHANGED.equals(propertyName)) {
-            String newPropertyName = String.valueOf(event.getNewValue());
-            updateProperty(newPropertyName);
         } else if (IElementParameterEventProperties.EVENT_VALIDATE_RESULT_UPDATE.equals(propertyName)) {
             Object newValue = event.getNewValue();
             if (newValue instanceof ValidationResult) {

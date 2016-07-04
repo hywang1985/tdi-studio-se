@@ -1291,7 +1291,7 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
             if (this.originalRootFolderName == null) {
                 this.originalRootFolderName = manager.getRootFolderName(getDestinationValue());
             }
-            String newFileName = this.originalRootFolderName + manager.getSelectedJobVersion() + getOutputSuffix();
+            String newFileName = this.originalRootFolderName + getSelectedJobVersion() + getOutputSuffix();
             targetPath = targetPath.substring(0, targetPath.lastIndexOf(File.separator) + 1) + newFileName;
             setDestinationValue(targetPath);
         }
@@ -1360,6 +1360,10 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
 
         saveWidgetValues();
 
+        if (manager == null) {
+            manager = createJobScriptsManager();
+        }
+
         if (!ensureTargetIsValid()) {
             return false;
         }
@@ -1395,12 +1399,10 @@ public abstract class JobScriptsExportWizardPage extends WizardFileSystemResourc
             }
 
         } else {
-
             List<ContextParameterType> contextEditableResultValuesList = null;
             if (manager != null) {
                 contextEditableResultValuesList = manager.getContextEditableResultValuesList();
             }
-            manager = createJobScriptsManager();
             if (nodes.length == 1) {
                 RepositoryNode node = nodes[0];
                 if (node.getType() == ENodeType.SYSTEM_FOLDER) {

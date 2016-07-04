@@ -139,22 +139,27 @@ if(def instanceof org.talend.components.api.component.OutputComponentDefinition)
             <%
             if (mainIrToRow != null) {
                 %>
-                <%=mainIrToRow.getConnection().getName()%> = new <%=mainIrToRow.getConnection().getName() %>Struct();
                 java.util.Iterator<?> outgoingMainRecords_<%=cid%> = ((org.talend.components.api.component.runtime.WriterWithFeedback<?, ?, ?>)writer_<%=cid%>).getSuccessfulWrites().iterator();
                 Object outgoingMain_<%=cid%> = null;
                 if (outgoingMainRecords_<%=cid%>.hasNext()) {
                     outgoingMain_<%=cid%> = outgoingMainRecords_<%=cid%>.next();
+                    if(outgoingMainRecords_<%=cid%>.hasNext()){
+                    	outgoingMain_<%=cid%> = data_<%=cid%>;
+                    }
                 }
                 <%
                 if (rejectIrToRow == null) {
                 %>
-                	if(outgoingMain_<%=cid%> == null){
+                else{
+                	if (!((org.talend.components.api.component.runtime.WriterWithFeedback<?, ?, ?>)writer_<%=cid%>).getRejectedWrites().iterator().hasNext()) {
                 		outgoingMain_<%=cid%> = data_<%=cid%>;
                 	}
+                }
                 <%
                 }
                 %>
                 if(outgoingMain_<%=cid%>!=null){
+                	<%=mainIrToRow.getConnection().getName()%> = new <%=mainIrToRow.getConnection().getName() %>Struct();
                 	<%
                     mainIrToRow.generateConvertRecord("outgoingMain_" + cid, mainIrToRow.getConnection().getName());
                     %>
